@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-cd /root/yahoo-scraper/
-echo "[$(date)] Starting Yahoo! Finance data download script" >> /var/log/scraper-yahoo-finance-all.log
-/usr/bin/python3 scraper-yahoo-finance-all.py >> /var/log/scraper-yahoo-finance-all.log 2>&1
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+# Create logs directory if it doesn't exist
+mkdir -p logs
+
+echo "[$(date)] Starting Yahoo! Finance data download script"
+echo "[$(date)] Starting Yahoo! Finance data download script" >> logs/scraper-yahoo-finance-all.log
+
+# Run the Python script and show output on screen AND in log file
+python3 scraper-yahoo-finance-all.py 2>&1 | tee -a logs/scraper-yahoo-finance-all.log

@@ -91,6 +91,9 @@ logs/
 # Generated reports
 reports/
 
+# Log files
+logs/
+
 # OS generated files
 Thumbs.db
 ehthumbs.db
