@@ -28,6 +28,9 @@ import os
 import subprocess
 import json
 from pathlib import Path
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Backoff configuration
 MAX_RETRIES = 5
@@ -78,6 +81,17 @@ START_DATE = "2025-01-01"
 OUTPUT_FILE = "scraped-data.csv"
 REPORT_DIR = "reports"
 EMAIL_TO = "tomasz.lebioda@wyborcza.pl"
+
+# SMTP Configuration (optional - leave empty to use system mail command)
+SMTP_CONFIG = {
+    "enabled": False,  # Set to True to use SMTP instead of mail command
+    "server": "smtp.gmail.com",  # SMTP server address
+    "port": 587,  # SMTP port (587 for TLS, 465 for SSL)
+    "use_tls": True,  # Use TLS encryption
+    "username": "",  # Your email username
+    "password": "",  # Your email password or app password
+    "from_email": ""  # From email address
+}
 
 def get_today_date():
     warsaw = pytz.timezone("Europe/Warsaw")
@@ -273,17 +287,71 @@ TICKER DETAILS
             json_data = self.convert_numpy_types(self.report_data)
             json.dump(json_data, f, ensure_ascii=False, indent=2)
         
+        # Save latest report link
+        latest_path = Path(REPORT_DIR) / "latest.txt"
+        with open(latest_path, 'w', encoding='utf-8') as f:
+            f.write(f"Latest report: {date_str}\n")
+            f.write(f"HTML: {html_path.name}\n")
+            f.write(f"Text: {text_path.name}\n")
+            f.write(f"JSON: {json_path.name}\n")
+            f.write(f"\nGenerated at: {self.report_data['timestamp']}\n")
+        
         return html_path, text_path, json_path
     
-    def send_email(self, text_report):
-        """Tries to send email using mail command"""
+    def send_email_smtp(self, text_report, html_report):
+        """Send email using SMTP configuration"""
         subject = f"Yahoo Finance Scraper Report - {self.report_data['date']}"
         
+        try:
+            # Create message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = SMTP_CONFIG['from_email']
+            msg['To'] = EMAIL_TO
+            
+            # Attach text and HTML parts
+            text_part = MIMEText(text_report, 'plain', 'utf-8')
+            html_part = MIMEText(html_report, 'html', 'utf-8')
+            msg.attach(text_part)
+            msg.attach(html_part)
+            
+            # Connect to SMTP server
+            if SMTP_CONFIG['use_tls']:
+                server = smtplib.SMTP(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
+                server.starttls()
+            else:
+                server = smtplib.SMTP_SSL(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
+            
+            # Login and send
+            server.login(SMTP_CONFIG['username'], SMTP_CONFIG['password'])
+            server.send_message(msg)
+            server.quit()
+            
+            print(f"Yahoo Finance Scraper: ✉️ Report sent via SMTP to {EMAIL_TO}")
+            return True
+            
+        except Exception as e:
+            print(f"Yahoo Finance Scraper: ⚠️ SMTP email error: {e}")
+            return False
+    
+    def send_email(self, text_report):
+        """Tries to send email using configured method"""
+        subject = f"Yahoo Finance Scraper Report - {self.report_data['date']}"
+        
+        # Try SMTP first if configured
+        if SMTP_CONFIG.get('enabled') and SMTP_CONFIG.get('username'):
+            html_report = self.generate_html_report()
+            if self.send_email_smtp(text_report, html_report):
+                return True
+            print("Yahoo Finance Scraper: ⚠️ SMTP failed, trying system mail command...")
+        
+        # Fallback to mail command
         try:
             # Check if mail command exists
             result = subprocess.run(['which', 'mail'], capture_output=True, text=True)
             if result.returncode != 0:
                 print("Yahoo Finance Scraper: ⚠️ 'mail' command not available - report saved locally only")
+                print("💡 Tip: Configure SMTP settings in the script for reliable email delivery")
                 return False
             
             # Send email
@@ -295,10 +363,11 @@ TICKER DETAILS
             process.communicate(input=text_report)
             
             if process.returncode == 0:
-                print(f"Yahoo Finance Scraper: ✉️ Report sent to {EMAIL_TO}")
+                print(f"Yahoo Finance Scraper: ✉️ Report sent via mail command to {EMAIL_TO}")
                 return True
             else:
                 print("Yahoo Finance Scraper: ⚠️ Email sending error - report saved locally only")
+                print("💡 Tip: Check /var/log/mail.log for details or configure SMTP settings")
                 return False
                 
         except Exception as e:
@@ -382,6 +451,7 @@ print(f"\nYahoo Finance Scraper: 🎉 Done. Written to {OUTPUT_FILE} from {START
 print("\nYahoo Finance Scraper: 📝 Generating reports...")
 html_path, text_path, json_path = report.save_reports()
 print(f"Yahoo Finance Scraper: 💾 Reports saved in '{REPORT_DIR}' directory")
+print(f"Yahoo Finance Scraper: 📄 View report at: {html_path}")
 
 # Try to send email
 text_report = report.generate_text_report()
