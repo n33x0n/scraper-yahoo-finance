@@ -3,11 +3,14 @@
 <html lang="pl">
     <head>
         <meta charset="UTF-8" />
-        <title>Dashboard – Indeksy Giełdowe</title>
+        <title>
+            Dashboard – Kursy walut, kryptowalut, indeksów giełdowych i spółek
+        </title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style>
+            /* STYLES – niezmienione */
             :root {
                 color-scheme: light dark;
             }
@@ -90,7 +93,7 @@
         </style>
     </head>
     <body>
-        <h1>Dane indeksów giełdowych</h1>
+        <h1>Kursy walut, kryptowalut, indeksów giełdowych i spółek</h1>
         <p>Wersja 1.3</p>
         <p>
             Autor: Tomasz Lebioda,
@@ -128,130 +131,8 @@
                 tableVisible = true,
                 darkTheme = true;
 
-            function sortTable(table, colIndex) {
-                const rows = Array.from(table.rows).slice(1);
-                const isNumeric = !isNaN(
-                    rows.find((r) => r.cells[colIndex].textContent.trim())
-                        ?.cells[colIndex].textContent,
-                );
-                const sorted = rows.sort((a, b) => {
-                    const aText = a.cells[colIndex].textContent.trim();
-                    const bText = b.cells[colIndex].textContent.trim();
-                    if (isNumeric) return parseFloat(aText) - parseFloat(bText);
-                    return aText.localeCompare(bText);
-                });
-                rows.forEach((row) => table.appendChild(row));
-            }
-
-            function toggleTable() {
-                const table = document.getElementById("indexTable");
-                tableVisible = !tableVisible;
-                table.style.display = tableVisible ? "table" : "none";
-            }
-
-            function toggleTheme() {
-                darkTheme = !darkTheme;
-                document.body.style.backgroundColor = darkTheme
-                    ? "#121212"
-                    : "#ffffff";
-                document.body.style.color = darkTheme ? "#e0e0e0" : "#000000";
-            }
-
-            function exportTableToCSV() {
-                const from = document.getElementById("exportFrom").value;
-                const to = document.getElementById("exportTo").value;
-                const filtered = fullData.filter(
-                    (row) =>
-                        (!from || row.date >= from) && (!to || row.date <= to),
-                );
-                let csv = [headers.join(",")];
-                filtered.forEach((row) => {
-                    let line = headers
-                        .map((h) => `"${row[h] || ""}"`)
-                        .join(",");
-                    csv.push(line);
-                });
-                const blob = new Blob([csv.join("\n")], {
-                    type: "text/csv;charset=utf-8;",
-                });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "index_data_filtered.csv";
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-
-            function exportChartToSVG() {
-                const canvas = document.getElementById("chart");
-                const image = new Image();
-                image.src = canvas.toDataURL("image/png");
-                image.onload = function () {
-                    const svg =
-                        `<svg xmlns='http://www.w3.org/2000/svg' width='${canvas.width}' height='${canvas.height}'>` +
-                        `<image href='${image.src}' width='${canvas.width}' height='${canvas.height}'/></svg>`;
-                    const blob = new Blob([svg], {
-                        type: "image/svg+xml;charset=utf-8",
-                    });
-                    const link = document.createElement("a");
-                    link.href = URL.createObjectURL(blob);
-                    link.download = "chart.svg";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                };
-            }
-
-            function updateChart(selectedIndices) {
-                const ctx = document.getElementById("chart").getContext("2d");
-                const chartFrom = document.getElementById("chartFrom").value;
-                const chartTo = document.getElementById("chartTo").value;
-                const filteredData = fullData.filter(
-                    (row) =>
-                        (!chartFrom || row.date >= chartFrom) &&
-                        (!chartTo || row.date <= chartTo),
-                );
-                const labels = filteredData.map((row) => row.date);
-                const datasets = selectedIndices.map((index, i) => ({
-                    label: index,
-                    // convert '-' or invalid values to null for continuous line
-                    data: filteredData.map((row) => {
-                        const raw = row[index];
-                        const num = parseFloat(raw);
-                        return raw === "-" || raw === "" || isNaN(num)
-                            ? null
-                            : num;
-                    }),
-                    spanGaps: true,
-                    borderWidth: 2,
-                    borderColor: `hsl(${i * 60}, 70%, 50%)`,
-                    backgroundColor: `hsla(${i * 60}, 70%, 70%, 0.2)`,
-                    fill: true,
-                    pointRadius: 0,
-                }));
-                if (window.indexChart) window.indexChart.destroy();
-                window.indexChart = new Chart(ctx, {
-                    type: "line",
-                    data: { labels, datasets },
-                    options: {
-                        responsive: true,
-                        animation: false,
-                        spanGaps: true,
-                        scales: {
-                            x: { title: { display: true, text: "Data" } },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: "Wartość (Close)",
-                                },
-                                beginAtZero: false,
-                            },
-                        },
-                    },
-                });
-            }
-
-            fetch("index_data.csv")
+            // PLIK CSV
+            fetch("gw-scraped-data.csv")
                 .then((response) => response.text())
                 .then((csvData) => {
                     const parsed = Papa.parse(csvData.trim(), { header: true });
@@ -329,6 +210,127 @@
                         Array.from(select.selectedOptions).map((o) => o.value),
                     );
                 });
+
+            function sortTable(table, colIndex) {
+                const rows = Array.from(table.rows).slice(1);
+                const isNumeric = !isNaN(
+                    rows.find((r) => r.cells[colIndex].textContent.trim())
+                        ?.cells[colIndex].textContent,
+                );
+                const sorted = rows.sort((a, b) => {
+                    const aText = a.cells[colIndex].textContent.trim();
+                    const bText = b.cells[colIndex].textContent.trim();
+                    if (isNumeric) return parseFloat(aText) - parseFloat(bText);
+                    return aText.localeCompare(bText);
+                });
+                rows.forEach((row) => table.appendChild(row));
+            }
+
+            function toggleTable() {
+                const table = document.getElementById("indexTable");
+                tableVisible = !tableVisible;
+                table.style.display = tableVisible ? "table" : "none";
+            }
+
+            function toggleTheme() {
+                darkTheme = !darkTheme;
+                document.body.style.backgroundColor = darkTheme
+                    ? "#121212"
+                    : "#ffffff";
+                document.body.style.color = darkTheme ? "#e0e0e0" : "#000000";
+            }
+
+            function exportTableToCSV() {
+                const from = document.getElementById("exportFrom").value;
+                const to = document.getElementById("exportTo").value;
+                const filtered = fullData.filter(
+                    (row) =>
+                        (!from || row.date >= from) && (!to || row.date <= to),
+                );
+                let csv = [headers.join(",")];
+                filtered.forEach((row) => {
+                    let line = headers
+                        .map((h) => `"${row[h] || ""}"`)
+                        .join(",");
+                    csv.push(line);
+                });
+                const blob = new Blob([csv.join("\n")], {
+                    type: "text/csv;charset=utf-8;",
+                });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "crypto_data_filtered.csv";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            function exportChartToSVG() {
+                const canvas = document.getElementById("chart");
+                const image = new Image();
+                image.src = canvas.toDataURL("image/png");
+                image.onload = function () {
+                    const svg =
+                        `<svg xmlns='http://www.w3.org/2000/svg' width='${canvas.width}' height='${canvas.height}'>` +
+                        `<image href='${image.src}' width='${canvas.width}' height='${canvas.height}'/></svg>`;
+                    const blob = new Blob([svg], {
+                        type: "image/svg+xml;charset=utf-8",
+                    });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "chart.svg";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            }
+
+            function updateChart(selectedIndices) {
+                const ctx = document.getElementById("chart").getContext("2d");
+                const chartFrom = document.getElementById("chartFrom").value;
+                const chartTo = document.getElementById("chartTo").value;
+                const filteredData = fullData.filter(
+                    (row) =>
+                        (!chartFrom || row.date >= chartFrom) &&
+                        (!chartTo || row.date <= chartTo),
+                );
+                const labels = filteredData.map((row) => row.date);
+                const datasets = selectedIndices.map((index, i) => ({
+                    label: index,
+                    data: filteredData.map((row) => {
+                        const raw = row[index];
+                        const num = parseFloat(raw);
+                        return raw === '-' || raw === '' || isNaN(num) ? null : num;
+                    }),
+                    spanGaps: true,
+                    borderWidth: 2,
+                    borderColor: `hsl(${i * 60}, 70%, 50%)`,
+                    backgroundColor: `hsla(${i * 60}, 70%, 70%, 0.2)`,
+                    fill: true,
+                    pointRadius: 0,
+                    spanGaps: true,
+                }));
+                if (window.indexChart) window.indexChart.destroy();
+                window.indexChart = new Chart(ctx, {
+                    type: "line",
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        animation: false,
+                        spanGaps: true,
+                        scales: {
+                            x: { title: { display: true, text: "Data" } },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "Wartość (Close)",
+                                },
+                                beginAtZero: false,
+                            },
+                        },
+                    },
+                });
+            }
 
             document
                 .getElementById("search")
