@@ -21,6 +21,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Financial Dashboard – Real-time Market Data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -39,15 +42,6 @@
 
         <!-- Controls Section -->
         <div class="controls-wrapper">
-            <!-- Category Filters -->
-            <div class="category-filters">
-                <button class="category-btn active" data-category="all">All</button>
-                <button class="category-btn" data-category="indices">Indices</button>
-                <button class="category-btn" data-category="crypto">Crypto</button>
-                <button class="category-btn" data-category="currencies">Currencies</button>
-                <button class="category-btn" data-category="stocks">Stocks</button>
-            </div>
-
             <div class="controls">
                 <div class="control-group">
                     <label for="search">Search</label>
@@ -103,15 +97,24 @@
             <div class="table-header">
                 <h2 class="table-title">Market Data</h2>
             </div>
-            <div class="table-container">
-                <table id="indexTable"></table>
-            </div>
+            <table id="indexTable"></table>
         </div>
 
         <!-- Chart Section -->
         <div class="chart-wrapper">
             <div class="chart-header">
-                <h2 class="chart-title">Price History</h2>
+                <div class="chart-header-top">
+                    <h2 class="chart-title">Price History</h2>
+                    <!-- Category Filters -->
+                    <div class="category-filters">
+                        <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="indices" title="Stock market indices from major global exchanges">Stock Indices</button>
+                        <button class="category-btn" data-category="crypto" title="Cryptocurrency prices">Crypto</button>
+                        <button class="category-btn" data-category="currencies" title="Exchange rates">Currencies</button>
+                        <button class="category-btn" data-category="stocks" title="Company stocks">Stocks</button>
+                    </div>
+                </div>
+                <p class="chart-hint">💡 Tip: Click on any item in the legend below to show/hide it on the chart</p>
             </div>
             <div class="chart-container">
                 <canvas id="chart"></canvas>
@@ -133,6 +136,14 @@
             crypto: ['Bitcoin', 'Ethereum', 'XRP', 'Solana', 'DOGE', 'USDT'],
             currencies: ['USD/PLN', 'EUR/PLN', 'GBP/PLN'],
             stocks: ['Tesla', 'Amazon', 'SPAX.PVT']
+        };
+
+        // Add note about indices
+        const CATEGORY_DESCRIPTIONS = {
+            indices: 'Stock market indices from major global exchanges',
+            crypto: 'Cryptocurrency prices in USD',
+            currencies: 'Foreign exchange rates against Polish Zloty',
+            stocks: 'Individual company stock prices'
         };
 
         // Color mapping - ensuring unique colors
@@ -178,12 +189,23 @@
 
         function initializeTable() {
             const table = document.getElementById("indexTable");
+            const wrapper = document.getElementById("tableWrapper");
             table.innerHTML = '';
+            
+            // Create wrapper div for horizontal scroll
+            const tableContainer = document.createElement("div");
+            tableContainer.className = "table-container";
+            
+            // Move table into container
+            const tableParent = table.parentNode;
+            tableParent.removeChild(table);
+            tableContainer.appendChild(table);
+            wrapper.appendChild(tableContainer);
             
             const thead = document.createElement("tr");
             headers.forEach((header, i) => {
                 const th = document.createElement("th");
-                th.textContent = header;
+                th.textContent = formatHeaderName(header);
                 th.addEventListener("click", () => sortTable(table, i));
                 thead.appendChild(th);
             });
@@ -193,11 +215,40 @@
                 const tr = document.createElement("tr");
                 headers.forEach((header) => {
                     const td = document.createElement("td");
-                    td.textContent = row[header] || "-";
+                    const value = row[header];
+                    if (header === 'date') {
+                        td.textContent = value || "-";
+                    } else if (value && !isNaN(value)) {
+                        td.textContent = formatNumber(parseFloat(value));
+                    } else {
+                        td.textContent = value || "-";
+                    }
                     tr.appendChild(td);
                 });
                 table.appendChild(tr);
             });
+        }
+
+        function formatHeaderName(header) {
+            // Shorten long header names for mobile
+            const shortNames = {
+                'China Shanghai SE Composite': 'Shanghai',
+                'the UK FTSE 100': 'FTSE 100',
+                'Canada S&P/TSX Composite': 'TSX',
+                'The US S&P 500': 'S&P 500',
+                'Japan Nikkei 225': 'Nikkei'
+            };
+            return shortNames[header] || header;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000) {
+                return num.toFixed(2);
+            } else if (num >= 1) {
+                return num.toFixed(2);
+            } else {
+                return num.toFixed(4);
+            }
         }
 
         function initializeSelect() {
