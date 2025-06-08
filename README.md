@@ -20,6 +20,8 @@ Yahoo Finance Scraper to narzędzie do automatycznego pobierania danych finansow
 - 📊 Dashboard webowy z interaktywnymi wykresami
 - 💾 Eksport danych do CSV
 - 🎨 Tryb jasny/ciemny w dashboardzie
+- 📧 Automatyczne raporty z wykonania (email/HTML/JSON)
+- 📝 Szczegółowe statystyki pobierania danych
 
 ## 🚀 Instalacja
 
@@ -72,6 +74,15 @@ Domyślna data początkowa to 2025-01-01. Możesz ją zmienić w pliku:
 START_DATE = "2025-01-01"
 ```
 
+### Konfiguracja raportów
+
+Raporty są generowane automatycznie po każdym uruchomieniu:
+
+```python
+REPORT_DIR = "reports"                    # Katalog z raportami
+EMAIL_TO = "tomasz.lebioda@wyborcza.pl"  # Adres email dla raportów
+```
+
 ## 📖 Użycie
 
 ### Ręczne uruchomienie scrapera
@@ -80,7 +91,9 @@ START_DATE = "2025-01-01"
 python scraper-yahoo-finance-all.py
 ```
 
-Skrypt pobierze dane od `START_DATE` do dnia dzisiejszego i zapisze je w pliku `scraped-data.csv`.
+Skrypt pobierze dane od `START_DATE` do dnia dzisiejszego i zapisze je w pliku `scraped-data.csv`. 
+Dodatkowo wygeneruje raport z wykonania w formacie HTML, TXT i JSON w katalogu `reports/`.
+Jeśli na serwerze jest dostępna komenda `mail`, raport zostanie wysłany mailem.
 
 ### Automatyzacja z wykorzystaniem Cron
 
@@ -129,6 +142,24 @@ Scraper implementuje zaawansowany mechanizm obsługi rate limiting:
 - **Zakres dat**: ustaw zakres dat dla eksportu i wykresów
 - **Tryb ciemny/jasny**: przełączanie motywu interfejsu
 
+## 📧 Raporty
+
+Po każdym uruchomieniu scraper generuje szczegółowy raport zawierający:
+
+- **Podsumowanie**: liczba tickerów, sukcesy, błędy
+- **Statystyki**: łączna liczba rekordów, brakujące wartości
+- **Szczegóły każdego tickera**: status, liczba pobranych rekordów
+- **Lista błędów**: jeśli wystąpiły problemy
+
+Raporty są zapisywane w trzech formatach:
+- `report_YYYY-MM-DD.html` - czytelny raport HTML
+- `report_YYYY-MM-DD.txt` - raport tekstowy (wysyłany mailem)
+- `report_YYYY-MM-DD.json` - dane w formacie JSON
+
+### Wysyłka emailem
+
+Jeśli na serwerze VPS jest zainstalowana i skonfigurowana komenda `mail`, raport zostanie automatycznie wysłany na adres email podany w konfiguracji. W przeciwnym razie raporty będą dostępne tylko lokalnie w katalogu `reports/`.
+
 ## 📁 Struktura projektu
 
 ```
@@ -140,7 +171,11 @@ scraper-yahoo-finance/
 ├── requirements.txt                # Zależności Python
 ├── README.md                       # Dokumentacja
 ├── LICENSE                         # Licencja GNU GPL v3
-└── scraped-data.csv               # Plik z danymi (generowany)
+├── scraped-data.csv               # Plik z danymi (generowany)
+└── reports/                        # Katalog z raportami (generowany)
+    ├── report_YYYY-MM-DD.html     # Raport HTML
+    ├── report_YYYY-MM-DD.txt      # Raport tekstowy
+    └── report_YYYY-MM-DD.json     # Raport JSON
 ```
 
 ## 🔒 Bezpieczeństwo

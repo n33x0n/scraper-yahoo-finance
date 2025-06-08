@@ -88,6 +88,9 @@ logs/
 *.temp
 .cache/
 
+# Generated reports
+reports/
+
 # OS generated files
 Thumbs.db
 ehthumbs.db
