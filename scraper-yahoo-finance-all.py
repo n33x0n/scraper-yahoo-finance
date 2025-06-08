@@ -234,6 +234,23 @@ TICKER DETAILS
         text += f"\n{'=' * 50}\nYahoo Finance Scraper v.1.5.0 | GNU GPL v3.0\n"
         return text
     
+    def convert_numpy_types(self, obj):
+        """Convert numpy types to native Python types for JSON serialization"""
+        import numpy as np
+        
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, dict):
+            return {key: self.convert_numpy_types(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return [self.convert_numpy_types(item) for item in obj]
+        else:
+            return obj
+    
     def save_reports(self):
         # Create reports directory if it doesn't exist
         Path(REPORT_DIR).mkdir(exist_ok=True)
@@ -250,10 +267,11 @@ TICKER DETAILS
         with open(text_path, 'w', encoding='utf-8') as f:
             f.write(self.generate_text_report())
         
-        # Save JSON report
+        # Save JSON report - convert numpy types first
         json_path = Path(REPORT_DIR) / f"report_{date_str}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump(self.report_data, f, ensure_ascii=False, indent=2)
+            json_data = self.convert_numpy_types(self.report_data)
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
         
         return html_path, text_path, json_path
     
@@ -349,8 +367,8 @@ for symbol, (col_name, decimals) in TICKER_CONFIG.items():
     result_df[col_name] = combined
     
     # Collect statistics for report
-    records_count = combined.notna().sum()
-    missing_count = combined.isna().sum()
+    records_count = int(combined.notna().sum())
+    missing_count = int(combined.isna().sum())
     report.add_ticker_result(symbol, col_name, success, records_count, missing_count, error)
 
 # 4) Save result to CSV
