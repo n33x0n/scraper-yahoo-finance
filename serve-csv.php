@@ -18,7 +18,7 @@
  *
  * PHP page serving .csv file (protects against "path traversal")
  */
-$baseDir = "/cytrus/tomaszlebioda.com/scraper-yahoo-finance/";
+$baseDir = "/cytrus/256/scraper-yahoo-finance/";
 $file = basename($_GET["file"]);
 $fullPath = $baseDir . $file;
 
