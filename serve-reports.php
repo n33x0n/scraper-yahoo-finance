@@ -19,7 +19,7 @@
  * PHP script for serving reports (protects against "path traversal")
  */
 
-$baseDir = "/path/to/scraper-yahoo-finance/reports/";
+$baseDir = "/cytrus/tomaszlebioda.com/scraper-yahoo-finance/reports/";
 $allowedTypes = ['html', 'txt', 'json'];
 
 // Get filename from GET parameter

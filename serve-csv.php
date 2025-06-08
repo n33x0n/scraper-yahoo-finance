@@ -18,15 +18,15 @@
  *
  * PHP page serving .csv file (protects against "path traversal")
  */
-$baseDir = "/path/to/yahoo-finance-indexes";
+$baseDir = "/cytrus/tomaszlebioda.com/scraper-yahoo-finance/";
 $file = basename($_GET["file"]);
 $fullPath = $baseDir . $file;
 
 if (!file_exists($fullPath)) {
     die("file not found");
 }
-header("content-type: text/csv");
-header("content-length:" . filesize($fullPath));
+header("Content-Type: text/csv");
+header("Content-Length: " . filesize($fullPath));
 ob_clean();
 flush();
 readfile($fullPath);
