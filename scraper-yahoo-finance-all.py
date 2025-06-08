@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-# Autor: Tomasz Lebioda
+# Author: Tomasz Lebioda
 # Email: tlebioda@gmail.com
 
 import yfinance as yf
@@ -51,7 +51,7 @@ def fetch_with_backoff(symbol, start, end):
     print(f"[{symbol}] FAILED after {MAX_RETRIES} retries – skipping.")
     return pd.DataFrame(columns=["Close"])
 
-# Konfiguracja tickerów: symbol -> (nazwa kolumny, liczba miejsc po przecinku)
+# Ticker configuration: symbol -> (column name, decimal places)
 TICKER_CONFIG = {
     "^GDAXI":   ("DAX", 2),
     "000001.SS":("China Shanghai SE Composite", 2),
@@ -125,10 +125,10 @@ class ReportGenerator:
     
     def generate_html_report(self):
         html = f"""<!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Raport Yahoo Finance Scraper - {self.report_data['date']}</title>
+    <title>Yahoo Finance Scraper Report - {self.report_data['date']}</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }}
         .container {{ max-width: 800px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
@@ -147,32 +147,32 @@ class ReportGenerator:
 </head>
 <body>
     <div class="container">
-        <h1>📊 Raport Yahoo Finance Scraper</h1>
-        <p><strong>Data wykonania:</strong> {self.report_data['timestamp']}</p>
-        <p><strong>Zakres danych:</strong> {self.report_data['start_date']} - {self.report_data['date']}</p>
+        <h1>📊 Yahoo Finance Scraper Report</h1>
+        <p><strong>Execution time:</strong> {self.report_data['timestamp']}</p>
+        <p><strong>Data range:</strong> {self.report_data['start_date']} - {self.report_data['date']}</p>
         
         <div class="summary">
-            <h2>📈 Podsumowanie</h2>
-            <p>Wszystkich tickerów: <strong>{self.report_data['summary']['total_tickers']}</strong></p>
-            <p>Pobrano pomyślnie: <span class="success">{self.report_data['summary']['successful']}</span></p>
-            <p>Niepowodzenia: <span class="failed">{self.report_data['summary']['failed']}</span></p>
-            <p>Łączna liczba rekordów: <strong>{self.report_data['summary']['total_records']}</strong></p>
-            <p>Brakujące wartości: <strong>{self.report_data['summary']['missing_values']}</strong></p>
+            <h2>📈 Summary</h2>
+            <p>Total tickers: <strong>{self.report_data['summary']['total_tickers']}</strong></p>
+            <p>Successfully downloaded: <span class="success">{self.report_data['summary']['successful']}</span></p>
+            <p>Failed: <span class="failed">{self.report_data['summary']['failed']}</span></p>
+            <p>Total records: <strong>{self.report_data['summary']['total_records']}</strong></p>
+            <p>Missing values: <strong>{self.report_data['summary']['missing_values']}</strong></p>
         </div>
         
-        <h2>📋 Szczegóły tickerów</h2>
+        <h2>📋 Ticker Details</h2>
         <table>
             <tr>
                 <th>Symbol</th>
-                <th>Nazwa</th>
+                <th>Name</th>
                 <th>Status</th>
-                <th>Rekordy</th>
-                <th>Brakujące</th>
+                <th>Records</th>
+                <th>Missing</th>
             </tr>
 """
         
         for symbol, data in self.report_data["tickers"].items():
-            status = '<span class="success">✅ Sukces</span>' if data["success"] else '<span class="failed">❌ Błąd</span>'
+            status = '<span class="success">✅ Success</span>' if data["success"] else '<span class="failed">❌ Error</span>'
             html += f"""
             <tr>
                 <td>{symbol}</td>
@@ -189,7 +189,7 @@ class ReportGenerator:
         
         if self.report_data["errors"]:
             html += """
-        <h2>⚠️ Błędy</h2>
+        <h2>⚠️ Errors</h2>
 """
             for error in self.report_data["errors"]:
                 html += f'        <div class="error">{error}</div>\n'
@@ -205,29 +205,29 @@ class ReportGenerator:
         return html
     
     def generate_text_report(self):
-        text = f"""RAPORT YAHOO FINANCE SCRAPER
+        text = f"""YAHOO FINANCE SCRAPER REPORT
 {'=' * 50}
-Data wykonania: {self.report_data['timestamp']}
-Zakres danych: {self.report_data['start_date']} - {self.report_data['date']}
+Execution time: {self.report_data['timestamp']}
+Data range: {self.report_data['start_date']} - {self.report_data['date']}
 
-PODSUMOWANIE
+SUMMARY
 {'-' * 50}
-Wszystkich tickerów: {self.report_data['summary']['total_tickers']}
-Pobrano pomyślnie: {self.report_data['summary']['successful']}
-Niepowodzenia: {self.report_data['summary']['failed']}
-Łączna liczba rekordów: {self.report_data['summary']['total_records']}
-Brakujące wartości: {self.report_data['summary']['missing_values']}
+Total tickers: {self.report_data['summary']['total_tickers']}
+Successfully downloaded: {self.report_data['summary']['successful']}
+Failed: {self.report_data['summary']['failed']}
+Total records: {self.report_data['summary']['total_records']}
+Missing values: {self.report_data['summary']['missing_values']}
 
-SZCZEGÓŁY TICKERÓW
+TICKER DETAILS
 {'-' * 50}
 """
         
         for symbol, data in self.report_data["tickers"].items():
-            status = "SUKCES" if data["success"] else "BŁĄD"
-            text += f"{symbol:<12} {data['name']:<30} {status:<8} Rekordy: {data['records']:<6} Brakujące: {data['missing_values']}\n"
+            status = "SUCCESS" if data["success"] else "ERROR"
+            text += f"{symbol:<12} {data['name']:<30} {status:<8} Records: {data['records']:<6} Missing: {data['missing_values']}\n"
         
         if self.report_data["errors"]:
-            text += f"\nBŁĘDY\n{'-' * 50}\n"
+            text += f"\nERRORS\n{'-' * 50}\n"
             for error in self.report_data["errors"]:
                 text += f"- {error}\n"
         
@@ -235,22 +235,22 @@ SZCZEGÓŁY TICKERÓW
         return text
     
     def save_reports(self):
-        # Utwórz katalog raportów jeśli nie istnieje
+        # Create reports directory if it doesn't exist
         Path(REPORT_DIR).mkdir(exist_ok=True)
         
         date_str = self.report_data['date']
         
-        # Zapisz raport HTML
+        # Save HTML report
         html_path = Path(REPORT_DIR) / f"report_{date_str}.html"
         with open(html_path, 'w', encoding='utf-8') as f:
             f.write(self.generate_html_report())
         
-        # Zapisz raport tekstowy
+        # Save text report
         text_path = Path(REPORT_DIR) / f"report_{date_str}.txt"
         with open(text_path, 'w', encoding='utf-8') as f:
             f.write(self.generate_text_report())
         
-        # Zapisz raport JSON
+        # Save JSON report
         json_path = Path(REPORT_DIR) / f"report_{date_str}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(self.report_data, f, ensure_ascii=False, indent=2)
@@ -258,17 +258,17 @@ SZCZEGÓŁY TICKERÓW
         return html_path, text_path, json_path
     
     def send_email(self, text_report):
-        """Próbuje wysłać email używając komendy mail"""
-        subject = f"Raport Yahoo Finance Scraper - {self.report_data['date']}"
+        """Tries to send email using mail command"""
+        subject = f"Yahoo Finance Scraper Report - {self.report_data['date']}"
         
         try:
-            # Sprawdź czy komenda mail istnieje
+            # Check if mail command exists
             result = subprocess.run(['which', 'mail'], capture_output=True, text=True)
             if result.returncode != 0:
-                print("Yahoo Finance Scraper: ⚠️ Komenda 'mail' niedostępna - raport zapisany tylko lokalnie")
+                print("Yahoo Finance Scraper: ⚠️ 'mail' command not available - report saved locally only")
                 return False
             
-            # Wyślij email
+            # Send email
             process = subprocess.Popen(
                 ['mail', '-s', subject, EMAIL_TO],
                 stdin=subprocess.PIPE,
@@ -277,38 +277,38 @@ SZCZEGÓŁY TICKERÓW
             process.communicate(input=text_report)
             
             if process.returncode == 0:
-                print(f"Yahoo Finance Scraper: ✉️ Raport wysłany na {EMAIL_TO}")
+                print(f"Yahoo Finance Scraper: ✉️ Report sent to {EMAIL_TO}")
                 return True
             else:
-                print("Yahoo Finance Scraper: ⚠️ Błąd wysyłania emaila - raport zapisany tylko lokalnie")
+                print("Yahoo Finance Scraper: ⚠️ Email sending error - report saved locally only")
                 return False
                 
         except Exception as e:
-            print(f"Yahoo Finance Scraper: ⚠️ Błąd wysyłania emaila: {e}")
+            print(f"Yahoo Finance Scraper: ⚠️ Email sending error: {e}")
             return False
 
-# Inicjalizuj generator raportów
+# Initialize report generator
 report = ReportGenerator()
 
-# 1) Wczytaj dotychczasowe dane, jeśli plik istnieje
+# 1) Load existing data if file exists
 if os.path.exists(OUTPUT_FILE):
     df_existing = pd.read_csv(OUTPUT_FILE, parse_dates=["date"], index_col="date")
 else:
     df_existing = None
 
-# 2) Przygotuj pełen zakres dat od START_DATE do dziś
+# 2) Prepare full date range from START_DATE to today
 end_date = get_today_date()
 all_dates = pd.date_range(start=START_DATE, end=end_date, freq='D', tz=None)
 result_df = pd.DataFrame(index=all_dates)
 
 print("Yahoo Finance Scraper: 🚀 Gathering data from Yahoo Finance...\n")
 
-# 3) Dla każdego tickera pobierz historię i połącz z dotychczasowymi danymi
+# 3) For each ticker download history and merge with existing data
 for symbol, (col_name, decimals) in TICKER_CONFIG.items():
     print(f"Yahoo Finance Scraper: ⏳ Downloading {col_name} ({symbol})...", end=" ")
     
     try:
-        # Pobierz historyczne Close z backoff retry
+        # Download historical Close with backoff retry
         hist = fetch_with_backoff(symbol, START_DATE, end_date)
         
         if not hist.empty:
@@ -325,46 +325,46 @@ for symbol, (col_name, decimals) in TICKER_CONFIG.items():
         error = str(e)
         hist = pd.DataFrame()
 
-    # Usuń strefę czasową, jeśli mamy DatetimeIndex
+    # Remove timezone if we have DatetimeIndex
     if isinstance(hist.index, pd.DatetimeIndex):
         hist.index = hist.index.tz_localize(None)
 
-    # Przygotuj serię z historią
+    # Prepare series with history
     if not hist.empty:
         series_new = hist["Close"].rename(col_name).round(decimals)
     else:
         series_new = pd.Series(name=col_name, dtype=float)
 
-    # Zreindexuj do pełnego zakresu dat
+    # Reindex to full date range
     series_new = series_new.reindex(all_dates)
 
-    # Jeśli były poprzednie dane, połącz: nowe nadpisują, stare zachowane
+    # If there was previous data, merge: new overwrites, old preserved
     if df_existing is not None and col_name in df_existing.columns:
         series_existing = df_existing[col_name].reindex(all_dates)
         combined = series_new.combine_first(series_existing)
     else:
         combined = series_new
 
-    # Dodaj do wynikowego DF
+    # Add to result DF
     result_df[col_name] = combined
     
-    # Zbierz statystyki dla raportu
+    # Collect statistics for report
     records_count = combined.notna().sum()
     missing_count = combined.isna().sum()
     report.add_ticker_result(symbol, col_name, success, records_count, missing_count, error)
 
-# 4) Zapisz wynik do CSV
+# 4) Save result to CSV
 result_df = result_df.reset_index().rename(columns={"index": "date"})
 result_df["date"] = result_df["date"].dt.strftime("%Y-%m-%d")
 result_df.to_csv(OUTPUT_FILE, index=False)
 
 print(f"\nYahoo Finance Scraper: 🎉 Done. Written to {OUTPUT_FILE} from {START_DATE} to {end_date} 📈")
 
-# Generuj i zapisz raporty
-print("\nYahoo Finance Scraper: 📝 Generowanie raportów...")
+# Generate and save reports
+print("\nYahoo Finance Scraper: 📝 Generating reports...")
 html_path, text_path, json_path = report.save_reports()
-print(f"Yahoo Finance Scraper: 💾 Raporty zapisane w katalogu '{REPORT_DIR}'")
+print(f"Yahoo Finance Scraper: 💾 Reports saved in '{REPORT_DIR}' directory")
 
-# Próbuj wysłać email
+# Try to send email
 text_report = report.generate_text_report()
 report.send_email(text_report)

@@ -16,23 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Skrypt PHP do serwowania raportów (zabezpiecza przed "path traversal")
+ * PHP script for serving reports (protects against "path traversal")
  */
 
 $baseDir = "/path/to/scraper-yahoo-finance/reports/";
 $allowedTypes = ['html', 'txt', 'json'];
 
-// Pobierz nazwę pliku z parametru GET
+// Get filename from GET parameter
 $file = isset($_GET['file']) ? $_GET['file'] : '';
 
 if (empty($file)) {
-    // Wyświetl listę dostępnych raportów
+    // Display list of available reports
     header('Content-Type: text/html; charset=utf-8');
     echo '<!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Raporty Yahoo Finance Scraper</title>
+    <title>Yahoo Finance Scraper Reports</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
         .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -47,7 +47,7 @@ if (empty($file)) {
 </head>
 <body>
     <div class="container">
-        <h1>📊 Raporty Yahoo Finance Scraper</h1>';
+        <h1>📊 Yahoo Finance Scraper Reports</h1>';
     
     $reports = [];
     $files = scandir($baseDir);
@@ -60,10 +60,10 @@ if (empty($file)) {
     }
     
     if (empty($reports)) {
-        echo '<p>Brak dostępnych raportów.</p>';
+        echo '<p>No reports available.</p>';
     } else {
         echo '<ul>';
-        krsort($reports); // Sortuj malejąco po dacie
+        krsort($reports); // Sort by date in descending order
         
         foreach ($reports as $date => $value) {
             echo '<li>';
@@ -89,24 +89,24 @@ if (empty($file)) {
     exit;
 }
 
-// Zabezpieczenie przed path traversal
+// Protection against path traversal
 $file = basename($file);
 
-// Sprawdź rozszerzenie pliku
+// Check file extension
 $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 if (!in_array($extension, $allowedTypes)) {
     http_response_code(403);
-    die("Niedozwolony typ pliku");
+    die("Forbidden file type");
 }
 
-// Sprawdź czy plik istnieje
+// Check if file exists
 $fullPath = $baseDir . $file;
 if (!file_exists($fullPath)) {
     http_response_code(404);
-    die("Plik nie istnieje");
+    die("File not found");
 }
 
-// Ustaw odpowiedni Content-Type
+// Set appropriate Content-Type
 switch ($extension) {
     case 'html':
         header('Content-Type: text/html; charset=utf-8');
@@ -119,7 +119,7 @@ switch ($extension) {
         break;
 }
 
-// Wyślij plik
+// Send file
 header('Content-Length: ' . filesize($fullPath));
 ob_clean();
 flush();

@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Strona .php podająca plik .csv (zabezpiecza przed "path traversal")
+ * PHP page serving .csv file (protects against "path traversal")
  */
 $baseDir = "/path/to/yahoo-finance-indexes";
 $file = basename($_GET["file"]);
 $fullPath = $baseDir . $file;
 
 if (!file_exists($fullPath)) {
-    die("nie ma");
+    die("file not found");
 }
 header("content-type: text/csv");
 header("content-length:" . filesize($fullPath));

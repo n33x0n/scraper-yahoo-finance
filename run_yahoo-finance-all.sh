@@ -16,5 +16,5 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 cd /root/yahoo-scraper/
-echo "[$(date)] Startuję skrypt pobierający dane z Yahoo! Finance" >> /var/log/scraper-yahoo-finance-all.log
+echo "[$(date)] Starting Yahoo! Finance data download script" >> /var/log/scraper-yahoo-finance-all.log
 /usr/bin/python3 scraper-yahoo-finance-all.py >> /var/log/scraper-yahoo-finance-all.log 2>&1

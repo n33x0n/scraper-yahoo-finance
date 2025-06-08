@@ -4,118 +4,118 @@
 ![Python](https://img.shields.io/badge/python-3.6+-green.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v3-blue.svg)
 
-## 📊 Opis projektu
+## 📊 Project Description
 
-Yahoo Finance Scraper to narzędzie do automatycznego pobierania danych finansowych z Yahoo Finance. Scraper zbiera kursy walut, kryptowalut, indeksów giełdowych oraz cen akcji wybranych spółek. Dane są zapisywane w formacie CSV i mogą być wizualizowane za pomocą dołączonego dashboardu webowego.
+Yahoo Finance Scraper is a tool for automatically downloading financial data from Yahoo Finance. The scraper collects currency rates, cryptocurrencies, stock indices, and stock prices of selected companies. Data is saved in CSV format and can be visualized using the included web dashboard.
 
-## ✨ Funkcjonalności
+## ✨ Features
 
-- 🔄 Automatyczne pobieranie danych z Yahoo Finance
-- 💰 Obsługa kursów walut (USD/PLN, EUR/PLN, GBP/PLN)
-- 🪙 Śledzenie kryptowalut (Bitcoin, Ethereum, XRP, Solana, DOGE, USDT)
-- 📈 Monitorowanie indeksów giełdowych (DAX, S&P 500, FTSE 100, Nikkei 225, WIG20 i inne)
-- 🏢 Śledzenie cen akcji (Tesla, Amazon)
-- 📅 Automatyczna aktualizacja danych od określonej daty
-- 🛡️ Mechanizm retry z exponential backoff dla obsługi rate limiting
-- 📊 Dashboard webowy z interaktywnymi wykresami
-- 💾 Eksport danych do CSV
-- 🎨 Tryb jasny/ciemny w dashboardzie
-- 📧 Automatyczne raporty z wykonania (email/HTML/JSON)
-- 📝 Szczegółowe statystyki pobierania danych
+- 🔄 Automatic data download from Yahoo Finance
+- 💰 Currency rate support (USD/PLN, EUR/PLN, GBP/PLN)
+- 🪙 Cryptocurrency tracking (Bitcoin, Ethereum, XRP, Solana, DOGE, USDT)
+- 📈 Stock index monitoring (DAX, S&P 500, FTSE 100, Nikkei 225, WIG20, and others)
+- 🏢 Stock price tracking (Tesla, Amazon)
+- 📅 Automatic data updates from specified date
+- 🛡️ Retry mechanism with exponential backoff for rate limiting handling
+- 📊 Web dashboard with interactive charts
+- 💾 Export data to CSV
+- 🎨 Light/dark mode in dashboard
+- 📧 Automatic execution reports (email/HTML/JSON)
+- 📝 Detailed data download statistics
 
-## 🚀 Instalacja
+## 🚀 Installation
 
-### Wymagania
+### Requirements
 
 - Python 3.6+
-- pip (menedżer pakietów Python)
+- pip (Python package manager)
 
-### Kroki instalacji
+### Installation Steps
 
-1. Sklonuj repozytorium:
+1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/yahoo-finance-scraper.git
 cd yahoo-finance-scraper
 ```
 
-2. Zainstaluj wymagane pakiety:
+2. Install required packages:
 ```bash
 pip install -r requirements.txt
 ```
 
-## 📋 Wymagane pakiety
+## 📋 Required Packages
 
-- `yfinance` - główna biblioteka do pobierania danych z Yahoo Finance
-- `pandas` - przetwarzanie i analiza danych
-- `pytz` - obsługa stref czasowych
+- `yfinance` - main library for downloading data from Yahoo Finance
+- `pandas` - data processing and analysis
+- `pytz` - timezone support
 
-## 🔧 Konfiguracja
+## 🔧 Configuration
 
-### Konfiguracja tickerów
+### Ticker Configuration
 
-W pliku `scraper-yahoo-finance-all.py` możesz dostosować listę śledzonych instrumentów finansowych:
+In the `scraper-yahoo-finance-all.py` file, you can customize the list of tracked financial instruments:
 
 ```python
 TICKER_CONFIG = {
-    "^GDAXI":   ("DAX", 2),                    # Indeks DAX
+    "^GDAXI":   ("DAX", 2),                    # DAX Index
     "BTC-USD":  ("Bitcoin", 4),                # Bitcoin
-    "PLN=X":    ("USD/PLN", 4),                # Kurs USD/PLN
-    # Dodaj własne tickery...
+    "PLN=X":    ("USD/PLN", 4),                # USD/PLN rate
+    # Add your own tickers...
 }
 ```
 
-Format: `"TICKER": ("Nazwa w CSV", liczba_miejsc_po_przecinku)`
+Format: `"TICKER": ("Name in CSV", decimal_places)`
 
-### Konfiguracja dat
+### Date Configuration
 
-Domyślna data początkowa to 2025-01-01. Możesz ją zmienić w pliku:
+The default start date is 2025-01-01. You can change it in the file:
 
 ```python
 START_DATE = "2025-01-01"
 ```
 
-### Konfiguracja raportów
+### Report Configuration
 
-Raporty są generowane automatycznie po każdym uruchomieniu:
+Reports are generated automatically after each run:
 
 ```python
-REPORT_DIR = "reports"                    # Katalog z raportami
-EMAIL_TO = "tomasz.lebioda@wyborcza.pl"  # Adres email dla raportów
+REPORT_DIR = "reports"                    # Reports directory
+EMAIL_TO = "tomasz.lebioda@wyborcza.pl"  # Email address for reports
 ```
 
-## 📖 Użycie
+## 📖 Usage
 
-### Ręczne uruchomienie scrapera
+### Manual Scraper Execution
 
 ```bash
 python scraper-yahoo-finance-all.py
 ```
 
-Skrypt pobierze dane od `START_DATE` do dnia dzisiejszego i zapisze je w pliku `scraped-data.csv`. 
-Dodatkowo wygeneruje raport z wykonania w formacie HTML, TXT i JSON w katalogu `reports/`.
-Jeśli na serwerze jest dostępna komenda `mail`, raport zostanie wysłany mailem.
+The script will download data from `START_DATE` to today and save it in the `scraped-data.csv` file.
+Additionally, it will generate an execution report in HTML, TXT, and JSON formats in the `reports/` directory.
+If the `mail` command is available on the server, the report will be sent via email.
 
-### Automatyzacja z wykorzystaniem Cron
+### Automation with Cron
 
-Dodaj następujące wpisy do crontab dla automatycznego uruchamiania:
+Add the following entries to crontab for automatic execution:
 
 ```bash
-# Uruchomienie scrapera codziennie o 23:05
-5 23 * * * /sciezka/do/run_yahoo-finance-all.sh 2>&1 | while IFS= read -r line; do printf "%s %s\n" "$(date '+\%Y-%m-%d %H:%M:%S')" "$line"; done >> /var/log/scraper-yahoo-finance-all.log
+# Run scraper daily at 23:05
+5 23 * * * /path/to/run_yahoo-finance-all.sh 2>&1 | while IFS= read -r line; do printf "%s %s\n" "$(date '+\%Y-%m-%d %H:%M:%S')" "$line"; done >> /var/log/scraper-yahoo-finance-all.log
 
-# Kopiowanie pliku CSV do lokalizacji publicznej o 23:10
-10 23 * * * cp /sciezka/do/scraper-yahoo-finance-all/scraped-data.csv /gdzie/ma/lezec/plik/scraped-data.csv
+# Copy CSV file to public location at 23:10
+10 23 * * * cp /path/to/scraper-yahoo-finance-all/scraped-data.csv /where/file/should/be/scraped-data.csv
 ```
 
-### Dashboard webowy
+### Web Dashboard
 
-1. Umieść pliki `index.html` i `scraped-data.csv` (lub `gw-scraped-data.csv`) na serwerze webowym
-2. Otwórz `index.html` w przeglądarce
-3. Dashboard automatycznie załaduje i wyświetli dane
+1. Place `index.html` and `scraped-data.csv` (or `gw-scraped-data.csv`) files on a web server
+2. Open `index.html` in a browser
+3. The dashboard will automatically load and display the data
 
-## 📊 Format danych
+## 📊 Data Format
 
-Dane są zapisywane w formacie CSV z następującą strukturą:
+Data is saved in CSV format with the following structure:
 
 ```csv
 date,DAX,China Shanghai SE Composite,the UK FTSE 100,...
@@ -123,92 +123,92 @@ date,DAX,China Shanghai SE Composite,the UK FTSE 100,...
 2025-01-02,18050.75,3205.50,7510.50,...
 ```
 
-## 🛡️ Obsługa błędów
+## 🛡️ Error Handling
 
-Scraper implementuje zaawansowany mechanizm obsługi rate limiting:
+The scraper implements an advanced rate limiting handling mechanism:
 
-- **Exponential backoff**: czas oczekiwania podwaja się po każdej nieudanej próbie
-- **Jitter**: losowe opóźnienie ±20% zapobiega synchronizacji requestów
-- **Throttling**: opóźnienie 1-5 sekund między tickerami
-- **Max retries**: maksymalnie 5 prób na ticker
+- **Exponential backoff**: wait time doubles after each failed attempt
+- **Jitter**: random delay ±20% prevents request synchronization
+- **Throttling**: 1-5 second delay between tickers
+- **Max retries**: maximum 5 attempts per ticker
 
-## 🎨 Dashboard - funkcjonalności
+## 🎨 Dashboard Features
 
-- **Wyszukiwanie**: filtrowanie danych w tabeli
-- **Sortowanie**: kliknij nagłówek kolumny aby posortować
-- **Wykresy**: wybierz indeksy do wyświetlenia na wykresie
-- **Eksport**: eksportuj przefiltrowane dane do CSV
-- **Eksport wykresu**: zapisz wykres jako SVG
-- **Zakres dat**: ustaw zakres dat dla eksportu i wykresów
-- **Tryb ciemny/jasny**: przełączanie motywu interfejsu
+- **Search**: filter data in the table
+- **Sorting**: click column header to sort
+- **Charts**: select indices to display on the chart
+- **Export**: export filtered data to CSV
+- **Chart export**: save chart as SVG
+- **Date range**: set date range for export and charts
+- **Dark/light mode**: toggle interface theme
 
-## 📧 Raporty
+## 📧 Reports
 
-Po każdym uruchomieniu scraper generuje szczegółowy raport zawierający:
+After each run, the scraper generates a detailed report containing:
 
-- **Podsumowanie**: liczba tickerów, sukcesy, błędy
-- **Statystyki**: łączna liczba rekordów, brakujące wartości
-- **Szczegóły każdego tickera**: status, liczba pobranych rekordów
-- **Lista błędów**: jeśli wystąpiły problemy
+- **Summary**: number of tickers, successes, errors
+- **Statistics**: total number of records, missing values
+- **Details for each ticker**: status, number of downloaded records
+- **Error list**: if problems occurred
 
-Raporty są zapisywane w trzech formatach:
-- `report_YYYY-MM-DD.html` - czytelny raport HTML
-- `report_YYYY-MM-DD.txt` - raport tekstowy (wysyłany mailem)
-- `report_YYYY-MM-DD.json` - dane w formacie JSON
+Reports are saved in three formats:
+- `report_YYYY-MM-DD.html` - readable HTML report
+- `report_YYYY-MM-DD.txt` - text report (sent via email)
+- `report_YYYY-MM-DD.json` - data in JSON format
 
-### Wysyłka emailem
+### Email Delivery
 
-Jeśli na serwerze VPS jest zainstalowana i skonfigurowana komenda `mail`, raport zostanie automatycznie wysłany na adres email podany w konfiguracji. W przeciwnym razie raporty będą dostępne tylko lokalnie w katalogu `reports/`.
+If the `mail` command is installed and configured on the VPS server, the report will be automatically sent to the email address specified in the configuration. Otherwise, reports will only be available locally in the `reports/` directory.
 
-## 📁 Struktura projektu
+## 📁 Project Structure
 
 ```
 scraper-yahoo-finance/
-├── scraper-yahoo-finance-all.py    # Główny skrypt scrapera
-├── run_yahoo-finance-all.sh        # Skrypt pomocniczy do uruchamiania
-├── index.html                      # Dashboard webowy
-├── serve-csv.php                   # Opcjonalny skrypt PHP do serwowania CSV
-├── requirements.txt                # Zależności Python
-├── README.md                       # Dokumentacja
-├── LICENSE                         # Licencja GNU GPL v3
-├── scraped-data.csv               # Plik z danymi (generowany)
-└── reports/                        # Katalog z raportami (generowany)
-    ├── report_YYYY-MM-DD.html     # Raport HTML
-    ├── report_YYYY-MM-DD.txt      # Raport tekstowy
-    └── report_YYYY-MM-DD.json     # Raport JSON
+├── scraper-yahoo-finance-all.py    # Main scraper script
+├── run_yahoo-finance-all.sh        # Helper script for running
+├── index.html                      # Web dashboard
+├── serve-csv.php                   # Optional PHP script for serving CSV
+├── requirements.txt                # Python dependencies
+├── README.md                       # Documentation
+├── LICENSE                         # GNU GPL v3 license
+├── scraped-data.csv               # Data file (generated)
+└── reports/                        # Reports directory (generated)
+    ├── report_YYYY-MM-DD.html     # HTML report
+    ├── report_YYYY-MM-DD.txt      # Text report
+    └── report_YYYY-MM-DD.json     # JSON report
 ```
 
-## 🔒 Bezpieczeństwo
+## 🔒 Security
 
-- Skrypt `serve-csv.php` zawiera zabezpieczenie przed "path traversal"
-- Dane są pobierane tylko z oficjalnego API Yahoo Finance
-- Brak przechowywania danych wrażliwych
+- The `serve-csv.php` script includes protection against "path traversal"
+- Data is downloaded only from the official Yahoo Finance API
+- No sensitive data is stored
 
-## 🤝 Wkład w projekt
+## 🤝 Contributing
 
-1. Fork repozytorium
-2. Stwórz branch dla swojej funkcjonalności (`git checkout -b feature/AmazingFeature`)
-3. Commit zmiany (`git commit -m 'Add some AmazingFeature'`)
-4. Push do brancha (`git push origin feature/AmazingFeature`)
-5. Otwórz Pull Request
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📝 Licencja
+## 📝 License
 
-Projekt jest dostępny na licencji GNU General Public License v3.0. Zobacz plik `LICENSE` dla szczegółów.
+This project is available under the GNU General Public License v3.0. See the `LICENSE` file for details.
 
-Ten program jest wolnym oprogramowaniem: możesz go rozpowszechniać i/lub modyfikować zgodnie z warunkami Powszechnej Licencji Publicznej GNU opublikowanej przez Free Software Foundation, w wersji 3 tej Licencji lub (według twojego wyboru) dowolnej późniejszej wersji.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-## 👤 Autor
+## 👤 Author
 
 **Tomasz Lebioda**
 - Email: tlebioda@gmail.com
 
-## 🙏 Podziękowania
+## 🙏 Acknowledgments
 
-- [yfinance](https://github.com/ranaroussi/yfinance) za świetne API do Yahoo Finance
-- [Chart.js](https://www.chartjs.org/) za bibliotekę wykresów
-- [Papa Parse](https://www.papaparse.com/) za parsowanie CSV w JavaScript
+- [yfinance](https://github.com/ranaroussi/yfinance) for the excellent Yahoo Finance API
+- [Chart.js](https://www.chartjs.org/) for the charting library
+- [Papa Parse](https://www.papaparse.com/) for CSV parsing in JavaScript
 
-## ⚠️ Uwagi prawne
+## ⚠️ Legal Notice
 
-Ten projekt jest przeznaczony wyłącznie do celów edukacyjnych i niekomercyjnych. Upewnij się, że przestrzegasz warunków użytkowania Yahoo Finance przy korzystaniu z tego narzędzia.
+This project is intended for educational and non-commercial purposes only. Make sure to comply with Yahoo Finance's terms of use when using this tool.
