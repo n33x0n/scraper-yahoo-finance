@@ -109,7 +109,7 @@ Add the following entries to crontab for automatic execution:
 
 ### Web Dashboard
 
-1. Place `index.html` and `scraped-data.csv` (or `gw-scraped-data.csv`) files on a web server
+1. Place `index.html` and `scraped-data.csv` files on a web server
 2. Open `index.html` in a browser
 3. The dashboard will automatically load and display the data
 

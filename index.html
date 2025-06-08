@@ -153,8 +153,8 @@
                 tableVisible = true,
                 darkTheme = true;
 
-            // PLIK CSV
-            fetch("gw-scraped-data.csv")
+            // CSV FILE
+            fetch("scraped-data.csv")
                 .then((response) => response.text())
                 .then((csvData) => {
                     const parsed = Papa.parse(csvData.trim(), { header: true });
