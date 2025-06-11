@@ -74,7 +74,7 @@ TICKER_CONFIG = {
     "EURPLN=X": ("EUR/PLN", 4),
     "AMZN":     ("Amazon", 2),
     "GBPPLN=X": ("GBP/PLN", 4),
-    "WIG20.WA": ("WIG20", 2)
+#    "WIG20.WA": ("WIG20", 2)
 }
 
 START_DATE = "2025-01-01"
