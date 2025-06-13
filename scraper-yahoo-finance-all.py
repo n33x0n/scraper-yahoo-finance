@@ -74,6 +74,7 @@ TICKER_CONFIG = {
     "EURPLN=X": ("EUR/PLN", 4),
     "AMZN":     ("Amazon", 2),
     "GBPPLN=X": ("GBP/PLN", 4),
+    "CL=F":     ("Crude Oil Jul 25", 4),
 #    "WIG20.WA": ("WIG20", 2)
 }
 
@@ -117,7 +118,7 @@ class ReportGenerator:
             },
             "errors": []
         }
-    
+
     def add_ticker_result(self, symbol, col_name, success, records=0, missing=0, error=None):
         self.report_data["tickers"][symbol] = {
             "name": col_name,
@@ -126,7 +127,7 @@ class ReportGenerator:
             "missing_values": missing,
             "error": str(error) if error else None
         }
-        
+
         self.report_data["summary"]["total_tickers"] += 1
         if success:
             self.report_data["summary"]["successful"] += 1
@@ -136,7 +137,7 @@ class ReportGenerator:
             self.report_data["summary"]["failed"] += 1
             if error:
                 self.report_data["errors"].append(f"{symbol}: {str(error)}")
-    
+
     def generate_html_report(self):
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -164,7 +165,7 @@ class ReportGenerator:
         <h1>📊 Yahoo Finance Scraper Report</h1>
         <p><strong>Execution time:</strong> {self.report_data['timestamp']}</p>
         <p><strong>Data range:</strong> {self.report_data['start_date']} - {self.report_data['date']}</p>
-        
+
         <div class="summary">
             <h2>📈 Summary</h2>
             <p>Total tickers: <strong>{self.report_data['summary']['total_tickers']}</strong></p>
@@ -173,7 +174,7 @@ class ReportGenerator:
             <p>Total records: <strong>{self.report_data['summary']['total_records']}</strong></p>
             <p>Missing values: <strong>{self.report_data['summary']['missing_values']}</strong></p>
         </div>
-        
+
         <h2>📋 Ticker Details</h2>
         <table>
             <tr>
@@ -184,7 +185,7 @@ class ReportGenerator:
                 <th>Missing</th>
             </tr>
 """
-        
+
         for symbol, data in self.report_data["tickers"].items():
             status = '<span class="success">✅ Success</span>' if data["success"] else '<span class="failed">❌ Error</span>'
             html += f"""
@@ -196,18 +197,18 @@ class ReportGenerator:
                 <td>{data['missing_values']}</td>
             </tr>
 """
-        
+
         html += """
         </table>
 """
-        
+
         if self.report_data["errors"]:
             html += """
         <h2>⚠️ Errors</h2>
 """
             for error in self.report_data["errors"]:
                 html += f'        <div class="error">{error}</div>\n'
-        
+
         html += """
         <div class="footer">
             <p>Yahoo Finance Scraper v.1.5.0 | GNU GPL v3.0</p>
@@ -217,7 +218,7 @@ class ReportGenerator:
 </body>
 </html>"""
         return html
-    
+
     def generate_text_report(self):
         text = f"""YAHOO FINANCE SCRAPER REPORT
 {'=' * 50}
@@ -235,23 +236,23 @@ Missing values: {self.report_data['summary']['missing_values']}
 TICKER DETAILS
 {'-' * 50}
 """
-        
+
         for symbol, data in self.report_data["tickers"].items():
             status = "SUCCESS" if data["success"] else "ERROR"
             text += f"{symbol:<12} {data['name']:<30} {status:<8} Records: {data['records']:<6} Missing: {data['missing_values']}\n"
-        
+
         if self.report_data["errors"]:
             text += f"\nERRORS\n{'-' * 50}\n"
             for error in self.report_data["errors"]:
                 text += f"- {error}\n"
-        
+
         text += f"\n{'=' * 50}\nYahoo Finance Scraper v.1.5.0 | GNU GPL v3.0\n"
         return text
-    
+
     def convert_numpy_types(self, obj):
         """Convert numpy types to native Python types for JSON serialization"""
         import numpy as np
-        
+
         if isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):
@@ -264,29 +265,29 @@ TICKER DETAILS
             return [self.convert_numpy_types(item) for item in obj]
         else:
             return obj
-    
+
     def save_reports(self):
         # Create reports directory if it doesn't exist
         Path(REPORT_DIR).mkdir(exist_ok=True)
-        
+
         date_str = self.report_data['date']
-        
+
         # Save HTML report
         html_path = Path(REPORT_DIR) / f"report_{date_str}.html"
         with open(html_path, 'w', encoding='utf-8') as f:
             f.write(self.generate_html_report())
-        
+
         # Save text report
         text_path = Path(REPORT_DIR) / f"report_{date_str}.txt"
         with open(text_path, 'w', encoding='utf-8') as f:
             f.write(self.generate_text_report())
-        
+
         # Save JSON report - convert numpy types first
         json_path = Path(REPORT_DIR) / f"report_{date_str}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json_data = self.convert_numpy_types(self.report_data)
             json.dump(json_data, f, ensure_ascii=False, indent=2)
-        
+
         # Save latest report link
         latest_path = Path(REPORT_DIR) / "latest.txt"
         with open(latest_path, 'w', encoding='utf-8') as f:
@@ -295,56 +296,56 @@ TICKER DETAILS
             f.write(f"Text: {text_path.name}\n")
             f.write(f"JSON: {json_path.name}\n")
             f.write(f"\nGenerated at: {self.report_data['timestamp']}\n")
-        
+
         return html_path, text_path, json_path
-    
+
     def send_email_smtp(self, text_report, html_report):
         """Send email using SMTP configuration"""
         subject = f"Yahoo Finance Scraper Report - {self.report_data['date']}"
-        
+
         try:
             # Create message
             msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
             msg['From'] = SMTP_CONFIG['from_email']
             msg['To'] = EMAIL_TO
-            
+
             # Attach text and HTML parts
             text_part = MIMEText(text_report, 'plain', 'utf-8')
             html_part = MIMEText(html_report, 'html', 'utf-8')
             msg.attach(text_part)
             msg.attach(html_part)
-            
+
             # Connect to SMTP server
             if SMTP_CONFIG['use_tls']:
                 server = smtplib.SMTP(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
                 server.starttls()
             else:
                 server = smtplib.SMTP_SSL(SMTP_CONFIG['server'], SMTP_CONFIG['port'])
-            
+
             # Login and send
             server.login(SMTP_CONFIG['username'], SMTP_CONFIG['password'])
             server.send_message(msg)
             server.quit()
-            
+
             print(f"Yahoo Finance Scraper: ✉️ Report sent via SMTP to {EMAIL_TO}")
             return True
-            
+
         except Exception as e:
             print(f"Yahoo Finance Scraper: ⚠️ SMTP email error: {e}")
             return False
-    
+
     def send_email(self, text_report):
         """Tries to send email using configured method"""
         subject = f"Yahoo Finance Scraper Report - {self.report_data['date']}"
-        
+
         # Try SMTP first if configured
         if SMTP_CONFIG.get('enabled') and SMTP_CONFIG.get('username'):
             html_report = self.generate_html_report()
             if self.send_email_smtp(text_report, html_report):
                 return True
             print("Yahoo Finance Scraper: ⚠️ SMTP failed, trying system mail command...")
-        
+
         # Fallback to mail command
         try:
             # Check if mail command exists
@@ -353,7 +354,7 @@ TICKER DETAILS
                 print("Yahoo Finance Scraper: ⚠️ 'mail' command not available - report saved locally only")
                 print("💡 Tip: Configure SMTP settings in the script for reliable email delivery")
                 return False
-            
+
             # Send email
             process = subprocess.Popen(
                 ['mail', '-s', subject, EMAIL_TO],
@@ -361,7 +362,7 @@ TICKER DETAILS
                 text=True
             )
             process.communicate(input=text_report)
-            
+
             if process.returncode == 0:
                 print(f"Yahoo Finance Scraper: ✉️ Report sent via mail command to {EMAIL_TO}")
                 return True
@@ -369,7 +370,7 @@ TICKER DETAILS
                 print("Yahoo Finance Scraper: ⚠️ Email sending error - report saved locally only")
                 print("💡 Tip: Check /var/log/mail.log for details or configure SMTP settings")
                 return False
-                
+
         except Exception as e:
             print(f"Yahoo Finance Scraper: ⚠️ Email sending error: {e}")
             return False
@@ -393,11 +394,11 @@ print("Yahoo Finance Scraper: 🚀 Gathering data from Yahoo Finance...\n")
 # 3) For each ticker download history and merge with existing data
 for symbol, (col_name, decimals) in TICKER_CONFIG.items():
     print(f"Yahoo Finance Scraper: ⏳ Downloading {col_name} ({symbol})...", end=" ")
-    
+
     try:
         # Download historical Close with backoff retry
         hist = fetch_with_backoff(symbol, START_DATE, end_date)
-        
+
         if not hist.empty:
             print("✅")
             success = True
@@ -434,7 +435,7 @@ for symbol, (col_name, decimals) in TICKER_CONFIG.items():
 
     # Add to result DF
     result_df[col_name] = combined
-    
+
     # Collect statistics for report
     records_count = int(combined.notna().sum())
     missing_count = int(combined.isna().sum())
