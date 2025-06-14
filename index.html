@@ -373,7 +373,7 @@
             );
 
             // Load CSV data
-            fetch("scraped-data.csv")
+            fetch("serve-csv.php?file=scraped-data.csv")
                 .then((response) => response.text())
                 .then((csvData) => {
                     const parsed = Papa.parse(csvData.trim(), { header: true });
