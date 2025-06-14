@@ -1,12 +1,12 @@
-# Yahoo Finance Scraper
+# Yahoo Financial Market Dashboard
 
-![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.5.1-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.6+-green.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v3-blue.svg)
 
-## 📊 Project Description
+## Overview
 
-Yahoo Finance Scraper is a tool for automatically downloading financial data from Yahoo Finance. The scraper collects currency rates, cryptocurrencies, stock indices, and stock prices of selected companies. Data is saved in CSV format and can be visualized using the included web dashboard.
+Yahoo Financial Market Dashboard is a comprehensive tool for automatically downloading and visualizing financial data from Yahoo Finance. The system collects currency rates, cryptocurrencies, stock indices, commodities, and stock prices of selected companies. Data is saved in CSV format and can be visualized using the included modern web dashboard with interactive charts and filtering capabilities.
 
 ## ✨ Features
 

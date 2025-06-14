@@ -1,4 +1,4 @@
-# Yahoo Finance Scraper v.1.5.0
+# Yahoo Financial Market Dashboard v.1.5.1
 # Copyright (C) 2025 Tomasz Lebioda <tlebioda@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -146,7 +146,7 @@ class ReportGenerator:
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Yahoo Finance Scraper Report - {self.report_data['date']}</title>
+    <title>Yahoo Financial Market Dashboard Report - {self.report_data['date']}</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }}
         .container {{ max-width: 800px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
@@ -165,7 +165,7 @@ class ReportGenerator:
 </head>
 <body>
     <div class="container">
-        <h1>📊 Yahoo Finance Scraper Report</h1>
+        <h1>📊 Yahoo Financial Market Dashboard Report</h1>
         <p><strong>Execution time:</strong> {self.report_data['timestamp']}</p>
         <p><strong>Data range:</strong> {self.report_data['start_date']} - {self.report_data['date']}</p>
 
@@ -214,7 +214,7 @@ class ReportGenerator:
 
         html += """
         <div class="footer">
-            <p>Yahoo Finance Scraper v.1.5.0 | GNU GPL v3.0</p>
+            <p>Yahoo Financial Market Dashboard v.1.5.1 | GNU GPL v3.0</p>
             <p>© 2025 Tomasz Lebioda</p>
         </div>
     </div>
@@ -223,33 +223,37 @@ class ReportGenerator:
         return html
 
     def generate_text_report(self):
-        text = f"""YAHOO FINANCE SCRAPER REPORT
-{'=' * 50}
-Execution time: {self.report_data['timestamp']}
-Data range: {self.report_data['start_date']} - {self.report_data['date']}
+        separator = "=" * 50
+        dash_line = "-" * 50
 
-SUMMARY
-{'-' * 50}
-Total tickers: {self.report_data['summary']['total_tickers']}
-Successfully downloaded: {self.report_data['summary']['successful']}
-Failed: {self.report_data['summary']['failed']}
-Total records: {self.report_data['summary']['total_records']}
-Missing values: {self.report_data['summary']['missing_values']}
+        text = "YAHOO FINANCIAL MARKET DASHBOARD REPORT\n"
+        text += separator + "\n"
+        text += f"Execution time: {self.report_data['timestamp']}\n"
+        text += f"Data range: {self.report_data['start_date']} - {self.report_data['date']}\n\n"
 
-TICKER DETAILS
-{'-' * 50}
-"""
+        text += "SUMMARY\n"
+        text += dash_line + "\n"
+        text += f"Total tickers: {self.report_data['summary']['total_tickers']}\n"
+        text += f"Successfully downloaded: {self.report_data['summary']['successful']}\n"
+        text += f"Failed: {self.report_data['summary']['failed']}\n"
+        text += f"Total records: {self.report_data['summary']['total_records']}\n"
+        text += f"Missing values: {self.report_data['summary']['missing_values']}\n\n"
+
+        text += "TICKER DETAILS\n"
+        text += dash_line + "\n"
 
         for symbol, data in self.report_data["tickers"].items():
             status = "SUCCESS" if data["success"] else "ERROR"
             text += f"{symbol:<12} {data['name']:<30} {status:<8} Records: {data['records']:<6} Missing: {data['missing_values']}\n"
 
         if self.report_data["errors"]:
-            text += f"\nERRORS\n{'-' * 50}\n"
+            text += "\nERRORS\n"
+            text += dash_line + "\n"
             for error in self.report_data["errors"]:
                 text += f"- {error}\n"
 
-        text += f"\n{'=' * 50}\nYahoo Finance Scraper v.1.5.0 | GNU GPL v3.0\n"
+        text += "\n" + separator + "\n"
+        text += "Yahoo Financial Market Dashboard v.1.5.1 | GNU GPL v3.0\n"
         return text
 
     def convert_numpy_types(self, obj):
@@ -304,7 +308,7 @@ TICKER DETAILS
 
     def send_email_smtp(self, text_report, html_report):
         """Send email using SMTP configuration"""
-        subject = f"Yahoo Finance Scraper Report - {self.report_data['date']}"
+        subject = f"Yahoo Financial Market Dashboard Report - {self.report_data['date']}"
 
         try:
             # Create message
@@ -331,30 +335,30 @@ TICKER DETAILS
             server.send_message(msg)
             server.quit()
 
-            print(f"Yahoo Finance Scraper: ✉️ Report sent via SMTP to {EMAIL_TO}")
+            print(f"Yahoo Financial Market Dashboard: ✉️ Report sent via SMTP to {EMAIL_TO}")
             return True
 
         except Exception as e:
-            print(f"Yahoo Finance Scraper: ⚠️ SMTP email error: {e}")
+            print(f"Yahoo Financial Market Dashboard: ⚠️ SMTP email error: {e}")
             return False
 
     def send_email(self, text_report):
         """Tries to send email using configured method"""
-        subject = f"Yahoo Finance Scraper Report - {self.report_data['date']}"
+        subject = f"Yahoo Financial Market Dashboard Report - {self.report_data['date']}"
 
         # Try SMTP first if configured
         if SMTP_CONFIG.get('enabled') and SMTP_CONFIG.get('username'):
             html_report = self.generate_html_report()
             if self.send_email_smtp(text_report, html_report):
                 return True
-            print("Yahoo Finance Scraper: ⚠️ SMTP failed, trying system mail command...")
+            print("Yahoo Financial Market Dashboard: ⚠️ SMTP failed, trying system mail command...")
 
         # Fallback to mail command
         try:
             # Check if mail command exists
             result = subprocess.run(['which', 'mail'], capture_output=True, text=True)
             if result.returncode != 0:
-                print("Yahoo Finance Scraper: ⚠️ 'mail' command not available - report saved locally only")
+                print("Yahoo Financial Market Dashboard: ⚠️ 'mail' command not available - report saved locally only")
                 print("💡 Tip: Configure SMTP settings in the script for reliable email delivery")
                 return False
 
@@ -367,15 +371,15 @@ TICKER DETAILS
             process.communicate(input=text_report)
 
             if process.returncode == 0:
-                print(f"Yahoo Finance Scraper: ✉️ Report sent via mail command to {EMAIL_TO}")
+                print(f"Yahoo Financial Market Dashboard: ✉️ Report sent via mail command to {EMAIL_TO}")
                 return True
             else:
-                print("Yahoo Finance Scraper: ⚠️ Email sending error - report saved locally only")
+                print("Yahoo Financial Market Dashboard: ⚠️ Email sending error - report saved locally only")
                 print("💡 Tip: Check /var/log/mail.log for details or configure SMTP settings")
                 return False
 
         except Exception as e:
-            print(f"Yahoo Finance Scraper: ⚠️ Email sending error: {e}")
+            print(f"Yahoo Financial Market Dashboard: ⚠️ Email sending error: {e}")
             return False
 
 # Initialize report generator
@@ -392,11 +396,11 @@ end_date = get_today_date()
 all_dates = pd.date_range(start=START_DATE, end=end_date, freq='D', tz=None)
 result_df = pd.DataFrame(index=all_dates)
 
-print("Yahoo Finance Scraper: 🚀 Gathering data from Yahoo Finance...\n")
+print("Yahoo Financial Market Dashboard: 🚀 Gathering data from Yahoo Finance...\n")
 
 # 3) For each ticker download history and merge with existing data
 for symbol, (col_name, decimals) in TICKER_CONFIG.items():
-    print(f"Yahoo Finance Scraper: ⏳ Downloading {col_name} ({symbol})...", end=" ")
+    print(f"Yahoo Financial Market Dashboard: ⏳ Downloading {col_name} ({symbol})...", end=" ")
 
     try:
         # Download historical Close with backoff retry
@@ -449,13 +453,13 @@ result_df = result_df.reset_index().rename(columns={"index": "date"})
 result_df["date"] = result_df["date"].dt.strftime("%Y-%m-%d")
 result_df.to_csv(OUTPUT_FILE, index=False)
 
-print(f"\nYahoo Finance Scraper: 🎉 Done. Written to {OUTPUT_FILE} from {START_DATE} to {end_date} 📈")
+print(f"\nYahoo Financial Market Dashboard: 🎉 Done. Written to {OUTPUT_FILE} from {START_DATE} to {end_date} 📈")
 
 # Generate and save reports
-print("\nYahoo Finance Scraper: 📝 Generating reports...")
+print("\nYahoo Financial Market Dashboard: 📝 Generating reports...")
 html_path, text_path, json_path = report.save_reports()
-print(f"Yahoo Finance Scraper: 💾 Reports saved in '{REPORT_DIR}' directory")
-print(f"Yahoo Finance Scraper: 📄 View report at: {html_path}")
+print(f"Yahoo Financial Market Dashboard: 💾 Reports saved in '{REPORT_DIR}' directory")
+print(f"Yahoo Financial Market Dashboard: 📄 View report at: {html_path}")
 
 # Try to send email
 text_report = report.generate_text_report()

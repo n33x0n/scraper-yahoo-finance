@@ -1,6 +1,6 @@
 <?php
 /*
- * Serve CSV - Yahoo Finance Scraper
+ * Serve CSV - Yahoo Financial Market Dashboard
  * Copyright (C) 2025 Tomasz Lebioda <tlebioda@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,4 +30,3 @@ header("Content-Length: " . filesize($fullPath));
 ob_clean();
 flush();
 readfile($fullPath);
-

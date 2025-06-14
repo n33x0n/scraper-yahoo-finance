@@ -1,5 +1,5 @@
 #!/bin/bash
-# Yahoo Finance Scraper - Run Script
+# Yahoo Financial Market Dashboard - Run Script
 # Copyright (C) 2025 Tomasz Lebioda <tlebioda@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,8 +22,8 @@ cd "$SCRIPT_DIR"
 # Create logs directory if it doesn't exist
 mkdir -p logs
 
-echo "[$(date)] Starting Yahoo! Finance data download script"
-echo "[$(date)] Starting Yahoo! Finance data download script" >> logs/scraper-yahoo-finance-all.log
+echo "[$(date)] Starting Yahoo Financial Market Dashboard data download script"
+echo "[$(date)] Starting Yahoo Financial Market Dashboard data download script" >> logs/scraper-yahoo-finance-all.log
 
 # Run the Python script and show output on screen AND in log file
 python3 scraper-yahoo-finance-all.py 2>&1 | tee -a logs/scraper-yahoo-finance-all.log
