@@ -74,7 +74,7 @@ TICKER_CONFIG = {
     "EURPLN=X": ("EUR/PLN", 4),
     "AMZN":     ("Amazon", 2),
     "GBPPLN=X": ("GBP/PLN", 4),
-    "CL=F":     ("Crude Oil Jul 25", 4),
+    "CL=F":     ("Crude Oil", 4),
     "NG=F":     ("Natural Gas", 4),
     "GC=F":     ("Gold", 4),
     "SI=F":     ("Silver", 4),

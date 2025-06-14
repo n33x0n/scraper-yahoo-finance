@@ -17,498 +17,696 @@
 -->
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Financial Dashboard – Real-time Market Data</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="dashboard.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>Financial Market Dashboard</h1>
-            <div class="header-info">
-                <p>Version 1.5.0</p>
-                <p>Author: <a href="mailto:tomasz.lebioda@wyborcza.pl">Tomasz Lebioda</a></p>
-                <p>License: <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GNU GPL v3.0</a></p>
-            </div>
-        </header>
-
-        <!-- Controls Section -->
-        <div class="controls-wrapper">
-            <div class="controls">
-                <div class="control-group">
-                    <label for="search">Search</label>
-                    <input type="text" id="search" placeholder="Search in table..." />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Financial Dashboard – Real-time Market Data</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="dashboard.css" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header -->
+            <header class="header">
+                <h1>Financial Market Dashboard</h1>
+                <div class="header-info">
+                    <p>Version 1.5.0</p>
+                    <p>
+                        Author:
+                        <a href="mailto:tomasz.lebioda@wyborcza.pl"
+                            >Tomasz Lebioda</a
+                        >
+                    </p>
+                    <p>
+                        License:
+                        <a
+                            href="https://www.gnu.org/licenses/gpl-3.0.html"
+                            target="_blank"
+                            >GNU GPL v3.0</a
+                        >
+                    </p>
                 </div>
-                
-                <div class="control-group">
-                    <label>Export Range</label>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="date" id="exportFrom" />
-                        <input type="date" id="exportTo" />
+            </header>
+
+            <!-- Controls Section -->
+            <div class="controls-wrapper">
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="search">Search</label>
+                        <input
+                            type="text"
+                            id="search"
+                            placeholder="Search in table..."
+                        />
+                    </div>
+
+                    <div class="control-group">
+                        <label>Export Range</label>
+                        <div style="display: flex; gap: 0.5rem">
+                            <input type="date" id="exportFrom" />
+                            <input type="date" id="exportTo" />
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Chart Range</label>
+                        <div style="display: flex; gap: 0.5rem">
+                            <input type="date" id="chartFrom" />
+                            <input type="date" id="chartTo" />
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="indexSelect">Select Data</label>
+                        <select id="indexSelect" multiple size="6"></select>
                     </div>
                 </div>
-                
-                <div class="control-group">
-                    <label>Chart Range</label>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="date" id="chartFrom" />
-                        <input type="date" id="chartTo" />
-                    </div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="indexSelect">Select Data</label>
-                    <select id="indexSelect" multiple size="6"></select>
+
+                <div class="action-buttons">
+                    <button
+                        class="btn btn-primary"
+                        onclick="exportTableToCSV()"
+                    >
+                        <svg
+                            class="btn-icon"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            ></path>
+                        </svg>
+                        Export CSV
+                    </button>
+                    <button
+                        class="btn btn-secondary"
+                        onclick="exportChartToSVG()"
+                    >
+                        <svg
+                            class="btn-icon"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            ></path>
+                        </svg>
+                        Export Chart
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleTable()">
+                        <svg
+                            class="btn-icon"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            ></path>
+                        </svg>
+                        Toggle Table
+                    </button>
                 </div>
             </div>
 
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="exportTableToCSV()">
-                    <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Export CSV
-                </button>
-                <button class="btn btn-secondary" onclick="exportChartToSVG()">
-                    <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    Export Chart
-                </button>
-                <button class="btn btn-secondary" onclick="toggleTable()">
-                    <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                    </svg>
-                    Toggle Table
-                </button>
+            <!-- Table Section -->
+            <div class="table-wrapper" id="tableWrapper">
+                <div class="table-header">
+                    <h2 class="table-title">Market Data</h2>
+                </div>
+                <table id="indexTable"></table>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <div class="chart-header-top">
+                        <h2 class="chart-title">Price History</h2>
+                        <!-- Category Filters -->
+                        <div class="category-filters">
+                            <button
+                                class="category-btn active"
+                                data-category="all"
+                            >
+                                All
+                            </button>
+                            <button
+                                class="category-btn"
+                                data-category="indices"
+                                title="Stock market indices from major global exchanges"
+                            >
+                                Stock Indices
+                            </button>
+                            <button
+                                class="category-btn"
+                                data-category="crypto"
+                                title="Cryptocurrency prices"
+                            >
+                                Crypto
+                            </button>
+                            <button
+                                class="category-btn"
+                                data-category="currencies"
+                                title="Exchange rates"
+                            >
+                                Currencies
+                            </button>
+                            <button
+                                class="category-btn"
+                                data-category="stocks"
+                                title="Company stocks"
+                            >
+                                Stocks
+                            </button>
+                            <button
+                                class="category-btn"
+                                data-category="commodities"
+                                title="Commodity prices including precious metals and energy"
+                            >
+                                Commodities
+                            </button>
+                        </div>
+                    </div>
+                    <p class="chart-hint">
+                        💡 Tip: Click on any item in the legend below to
+                        show/hide it on the chart
+                    </p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- Table Section -->
-        <div class="table-wrapper" id="tableWrapper">
-            <div class="table-header">
-                <h2 class="table-title">Market Data</h2>
-            </div>
-            <table id="indexTable"></table>
-        </div>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <svg
+                width="24"
+                height="24"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                ></path>
+            </svg>
+        </button>
 
-        <!-- Chart Section -->
-        <div class="chart-wrapper">
-            <div class="chart-header">
-                <div class="chart-header-top">
-                    <h2 class="chart-title">Price History</h2>
-                    <!-- Category Filters -->
-                    <div class="category-filters">
-                        <button class="category-btn active" data-category="all">All</button>
-                        <button class="category-btn" data-category="indices" title="Stock market indices from major global exchanges">Stock Indices</button>
-                        <button class="category-btn" data-category="crypto" title="Cryptocurrency prices">Crypto</button>
-                        <button class="category-btn" data-category="currencies" title="Exchange rates">Currencies</button>
-                        <button class="category-btn" data-category="stocks" title="Company stocks">Stocks</button>
-                    </div>
-                </div>
-                <p class="chart-hint">💡 Tip: Click on any item in the legend below to show/hide it on the chart</p>
-            </div>
-            <div class="chart-container">
-                <canvas id="chart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()">
-        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-        </svg>
-    </button>
-
-    <script>
-        // Data categories configuration
-        const CATEGORIES = {
-            indices: ['DAX', 'China Shanghai SE Composite', 'the UK FTSE 100', 'Canada S&P/TSX Composite', 'The US S&P 500', 'Japan Nikkei 225', 'WIG20'],
-            crypto: ['Bitcoin', 'Ethereum', 'XRP', 'Solana', 'DOGE', 'USDT'],
-            currencies: ['USD/PLN', 'EUR/PLN', 'GBP/PLN'],
-            stocks: ['Tesla', 'Amazon', 'SPAX.PVT']
-        };
-
-        // Add note about indices
-        const CATEGORY_DESCRIPTIONS = {
-            indices: 'Stock market indices from major global exchanges',
-            crypto: 'Cryptocurrency prices in USD',
-            currencies: 'Foreign exchange rates against Polish Zloty',
-            stocks: 'Individual company stock prices'
-        };
-
-        // Color mapping - ensuring unique colors
-        const COLOR_PALETTE = [
-            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-            '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16',
-            '#6366f1', '#a855f7', '#22c55e', '#fbbf24', '#78716c',
-            '#0ea5e9', '#d946ef', '#f43f5e', '#1e40af', '#047857',
-            '#92400e', '#991b1b', '#5b21b6', '#831843', '#0f766e',
-            '#c2410c', '#0e7490', '#4d7c0f', '#4338ca', '#6b21a8'
-        ];
-
-        let fullData = [],
-            headers = [],
-            tableVisible = true,
-            darkTheme = true,
-            currentCategory = 'all',
-            colorMap = {};
-
-        // Initialize theme
-        document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
-
-        // Load CSV data
-        fetch("scraped-data.csv")
-            .then((response) => response.text())
-            .then((csvData) => {
-                const parsed = Papa.parse(csvData.trim(), { header: true });
-                fullData = parsed.data;
-                headers = parsed.meta.fields;
-
-                // Assign colors to each column
-                let colorIndex = 0;
-                headers.slice(1).forEach((header) => {
-                    colorMap[header] = COLOR_PALETTE[colorIndex % COLOR_PALETTE.length];
-                    colorIndex++;
-                });
-
-                initializeTable();
-                initializeSelect();
-                initializeCategoryFilters();
-                updateChart(getSelectedIndices());
-            });
-
-        function initializeTable() {
-            const table = document.getElementById("indexTable");
-            const wrapper = document.getElementById("tableWrapper");
-            table.innerHTML = '';
-            
-            // Create wrapper div for horizontal scroll
-            const tableContainer = document.createElement("div");
-            tableContainer.className = "table-container";
-            
-            // Move table into container
-            const tableParent = table.parentNode;
-            tableParent.removeChild(table);
-            tableContainer.appendChild(table);
-            wrapper.appendChild(tableContainer);
-            
-            const thead = document.createElement("tr");
-            headers.forEach((header, i) => {
-                const th = document.createElement("th");
-                th.textContent = formatHeaderName(header);
-                th.addEventListener("click", () => sortTable(table, i));
-                thead.appendChild(th);
-            });
-            table.appendChild(thead);
-            
-            fullData.forEach((row) => {
-                const tr = document.createElement("tr");
-                headers.forEach((header) => {
-                    const td = document.createElement("td");
-                    const value = row[header];
-                    if (header === 'date') {
-                        td.textContent = value || "-";
-                    } else if (value && !isNaN(value)) {
-                        td.textContent = formatNumber(parseFloat(value));
-                    } else {
-                        td.textContent = value || "-";
-                    }
-                    tr.appendChild(td);
-                });
-                table.appendChild(tr);
-            });
-        }
-
-        function formatHeaderName(header) {
-            // Shorten long header names for mobile
-            const shortNames = {
-                'China Shanghai SE Composite': 'Shanghai',
-                'the UK FTSE 100': 'FTSE 100',
-                'Canada S&P/TSX Composite': 'TSX',
-                'The US S&P 500': 'S&P 500',
-                'Japan Nikkei 225': 'Nikkei'
+        <script>
+            // Data categories configuration
+            const CATEGORIES = {
+                indices: [
+                    "DAX",
+                    "China Shanghai SE Composite",
+                    "the UK FTSE 100",
+                    "Canada S&P/TSX Composite",
+                    "The US S&P 500",
+                    "Japan Nikkei 225",
+                ],
+                crypto: [
+                    "Bitcoin",
+                    "Ethereum",
+                    "XRP",
+                    "Solana",
+                    "DOGE",
+                    "USDT",
+                ],
+                currencies: ["USD/PLN", "EUR/PLN", "GBP/PLN"],
+                stocks: ["Tesla", "Amazon", "SPAX.PVT"],
+                commodities: ["Crude Oil", "Natural Gas", "Gold", "Silver"],
             };
-            return shortNames[header] || header;
-        }
 
-        function formatNumber(num) {
-            if (num >= 1000) {
-                return num.toFixed(2);
-            } else if (num >= 1) {
-                return num.toFixed(2);
-            } else {
-                return num.toFixed(4);
-            }
-        }
+            // Add note about indices
+            const CATEGORY_DESCRIPTIONS = {
+                indices: "Stock market indices from major global exchanges",
+                crypto: "Cryptocurrency prices in USD",
+                currencies: "Foreign exchange rates against Polish Zloty",
+                stocks: "Individual company stock prices",
+                commodities:
+                    "Commodity prices including precious metals and energy",
+            };
 
-        function initializeSelect() {
-            const select = document.getElementById("indexSelect");
-            select.innerHTML = '';
-            
-            headers.slice(1).forEach((h) => {
-                const option = document.createElement("option");
-                option.value = h;
-                option.textContent = h;
-                option.selected = shouldShowInCategory(h, currentCategory);
-                select.appendChild(option);
-            });
+            // Color mapping - ensuring unique colors
+            const COLOR_PALETTE = [
+                "#3b82f6",
+                "#10b981",
+                "#f59e0b",
+                "#ef4444",
+                "#8b5cf6",
+                "#ec4899",
+                "#14b8a6",
+                "#f97316",
+                "#06b6d4",
+                "#84cc16",
+                "#6366f1",
+                "#a855f7",
+                "#22c55e",
+                "#fbbf24",
+                "#78716c",
+                "#0ea5e9",
+                "#d946ef",
+                "#f43f5e",
+                "#1e40af",
+                "#047857",
+                "#92400e",
+                "#991b1b",
+                "#5b21b6",
+                "#831843",
+                "#0f766e",
+                "#c2410c",
+                "#0e7490",
+                "#4d7c0f",
+                "#4338ca",
+                "#6b21a8",
+            ];
 
-            select.addEventListener("change", () => {
-                updateChart(getSelectedIndices());
-                saveSelectedIndices();
-            });
-        }
+            let fullData = [],
+                headers = [],
+                tableVisible = true,
+                darkTheme = true,
+                currentCategory = "all",
+                colorMap = {};
 
-        function initializeCategoryFilters() {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    currentCategory = e.target.dataset.category;
-                    filterByCategory(currentCategory);
+            // Initialize theme
+            document.documentElement.setAttribute(
+                "data-theme",
+                darkTheme ? "dark" : "light",
+            );
+
+            // Load CSV data
+            fetch("scraped-data.csv")
+                .then((response) => response.text())
+                .then((csvData) => {
+                    const parsed = Papa.parse(csvData.trim(), { header: true });
+                    fullData = parsed.data;
+                    headers = parsed.meta.fields;
+
+                    // Assign colors to each column
+                    let colorIndex = 0;
+                    headers.slice(1).forEach((header) => {
+                        colorMap[header] =
+                            COLOR_PALETTE[colorIndex % COLOR_PALETTE.length];
+                        colorIndex++;
+                    });
+
+                    initializeTable();
+                    initializeSelect();
+                    initializeCategoryFilters();
+                    updateChart(getSelectedIndices());
                 });
-            });
-        }
 
-        function filterByCategory(category) {
-            const select = document.getElementById("indexSelect");
-            Array.from(select.options).forEach((opt) => {
-                if (category === 'all') {
-                    opt.selected = true;
-                } else {
-                    opt.selected = shouldShowInCategory(opt.value, category);
-                }
-            });
-            updateChart(getSelectedIndices());
-        }
+            function initializeTable() {
+                const table = document.getElementById("indexTable");
+                const wrapper = document.getElementById("tableWrapper");
+                table.innerHTML = "";
 
-        function shouldShowInCategory(name, category) {
-            if (category === 'all') return true;
-            return CATEGORIES[category]?.includes(name) || false;
-        }
+                // Create wrapper div for horizontal scroll
+                const tableContainer = document.createElement("div");
+                tableContainer.className = "table-container";
 
-        function getSelectedIndices() {
-            const select = document.getElementById("indexSelect");
-            return Array.from(select.selectedOptions).map(o => o.value);
-        }
+                // Move table into container
+                const tableParent = table.parentNode;
+                tableParent.removeChild(table);
+                tableContainer.appendChild(table);
+                wrapper.appendChild(tableContainer);
 
-        function saveSelectedIndices() {
-            const selected = getSelectedIndices();
-            localStorage.setItem('selectedIndices', JSON.stringify(selected));
-        }
+                const thead = document.createElement("tr");
+                headers.forEach((header, i) => {
+                    const th = document.createElement("th");
+                    th.textContent = formatHeaderName(header);
+                    th.addEventListener("click", () => sortTable(table, i));
+                    thead.appendChild(th);
+                });
+                table.appendChild(thead);
 
-        function sortTable(table, colIndex) {
-            const rows = Array.from(table.rows).slice(1);
-            const isNumeric = !isNaN(
-                rows.find((r) => r.cells[colIndex].textContent.trim())
-                    ?.cells[colIndex].textContent
-            );
-            const sorted = rows.sort((a, b) => {
-                const aText = a.cells[colIndex].textContent.trim();
-                const bText = b.cells[colIndex].textContent.trim();
-                if (isNumeric) return parseFloat(aText) - parseFloat(bText);
-                return aText.localeCompare(bText);
-            });
-            rows.forEach((row) => table.appendChild(row));
-        }
-
-        function toggleTable() {
-            const wrapper = document.getElementById("tableWrapper");
-            tableVisible = !tableVisible;
-            wrapper.style.display = tableVisible ? "block" : "none";
-        }
-
-        function toggleTheme() {
-            darkTheme = !darkTheme;
-            document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
-            
-            // Update theme icon
-            const icon = document.querySelector('.theme-toggle svg');
-            if (darkTheme) {
-                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
-            } else {
-                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+                fullData.forEach((row) => {
+                    const tr = document.createElement("tr");
+                    headers.forEach((header) => {
+                        const td = document.createElement("td");
+                        const value = row[header];
+                        if (header === "date") {
+                            td.textContent = value || "-";
+                        } else if (value && !isNaN(value)) {
+                            td.textContent = formatNumber(parseFloat(value));
+                        } else {
+                            td.textContent = value || "-";
+                        }
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
             }
-        }
 
-        function exportTableToCSV() {
-            const from = document.getElementById("exportFrom").value;
-            const to = document.getElementById("exportTo").value;
-            const filtered = fullData.filter(
-                (row) =>
-                    (!from || row.date >= from) && (!to || row.date <= to)
-            );
-            let csv = [headers.join(",")];
-            filtered.forEach((row) => {
-                let line = headers
-                    .map((h) => `"${row[h] || ""}"`)
-                    .join(",");
-                csv.push(line);
-            });
-            const blob = new Blob([csv.join("\n")], {
-                type: "text/csv;charset=utf-8;",
-            });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "financial_data_export.csv";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+            function formatHeaderName(header) {
+                // Shorten long header names for mobile
+                const shortNames = {
+                    "China Shanghai SE Composite": "Shanghai",
+                    "the UK FTSE 100": "FTSE 100",
+                    "Canada S&P/TSX Composite": "TSX",
+                    "The US S&P 500": "S&P 500",
+                    "Japan Nikkei 225": "Nikkei",
+                };
+                return shortNames[header] || header;
+            }
 
-        function exportChartToSVG() {
-            const canvas = document.getElementById("chart");
-            const image = new Image();
-            image.src = canvas.toDataURL("image/png");
-            image.onload = function () {
-                const svg =
-                    `<svg xmlns='http://www.w3.org/2000/svg' width='${canvas.width}' height='${canvas.height}'>` +
-                    `<image href='${image.src}' width='${canvas.width}' height='${canvas.height}'/></svg>`;
-                const blob = new Blob([svg], {
-                    type: "image/svg+xml;charset=utf-8",
+            function formatNumber(num) {
+                if (num >= 1000) {
+                    return num.toFixed(2);
+                } else if (num >= 1) {
+                    return num.toFixed(2);
+                } else {
+                    return num.toFixed(4);
+                }
+            }
+
+            function initializeSelect() {
+                const select = document.getElementById("indexSelect");
+                select.innerHTML = "";
+
+                headers.slice(1).forEach((h) => {
+                    const option = document.createElement("option");
+                    option.value = h;
+                    option.textContent = h;
+                    option.selected = shouldShowInCategory(h, currentCategory);
+                    select.appendChild(option);
+                });
+
+                select.addEventListener("change", () => {
+                    updateChart(getSelectedIndices());
+                    saveSelectedIndices();
+                });
+            }
+
+            function initializeCategoryFilters() {
+                document.querySelectorAll(".category-btn").forEach((btn) => {
+                    btn.addEventListener("click", (e) => {
+                        document
+                            .querySelectorAll(".category-btn")
+                            .forEach((b) => b.classList.remove("active"));
+                        e.target.classList.add("active");
+                        currentCategory = e.target.dataset.category;
+                        filterByCategory(currentCategory);
+                    });
+                });
+            }
+
+            function filterByCategory(category) {
+                const select = document.getElementById("indexSelect");
+                Array.from(select.options).forEach((opt) => {
+                    if (category === "all") {
+                        opt.selected = true;
+                    } else {
+                        opt.selected = shouldShowInCategory(
+                            opt.value,
+                            category,
+                        );
+                    }
+                });
+                updateChart(getSelectedIndices());
+            }
+
+            function shouldShowInCategory(name, category) {
+                if (category === "all") return true;
+                return CATEGORIES[category]?.includes(name) || false;
+            }
+
+            function getSelectedIndices() {
+                const select = document.getElementById("indexSelect");
+                return Array.from(select.selectedOptions).map((o) => o.value);
+            }
+
+            function saveSelectedIndices() {
+                const selected = getSelectedIndices();
+                localStorage.setItem(
+                    "selectedIndices",
+                    JSON.stringify(selected),
+                );
+            }
+
+            function sortTable(table, colIndex) {
+                const rows = Array.from(table.rows).slice(1);
+                const isNumeric = !isNaN(
+                    rows.find((r) => r.cells[colIndex].textContent.trim())
+                        ?.cells[colIndex].textContent,
+                );
+                const sorted = rows.sort((a, b) => {
+                    const aText = a.cells[colIndex].textContent.trim();
+                    const bText = b.cells[colIndex].textContent.trim();
+                    if (isNumeric) return parseFloat(aText) - parseFloat(bText);
+                    return aText.localeCompare(bText);
+                });
+                rows.forEach((row) => table.appendChild(row));
+            }
+
+            function toggleTable() {
+                const wrapper = document.getElementById("tableWrapper");
+                tableVisible = !tableVisible;
+                wrapper.style.display = tableVisible ? "block" : "none";
+            }
+
+            function toggleTheme() {
+                darkTheme = !darkTheme;
+                document.documentElement.setAttribute(
+                    "data-theme",
+                    darkTheme ? "dark" : "light",
+                );
+
+                // Update theme icon
+                const icon = document.querySelector(".theme-toggle svg");
+                if (darkTheme) {
+                    icon.innerHTML =
+                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+                } else {
+                    icon.innerHTML =
+                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+                }
+            }
+
+            function exportTableToCSV() {
+                const from = document.getElementById("exportFrom").value;
+                const to = document.getElementById("exportTo").value;
+                const filtered = fullData.filter(
+                    (row) =>
+                        (!from || row.date >= from) && (!to || row.date <= to),
+                );
+                let csv = [headers.join(",")];
+                filtered.forEach((row) => {
+                    let line = headers
+                        .map((h) => `"${row[h] || ""}"`)
+                        .join(",");
+                    csv.push(line);
+                });
+                const blob = new Blob([csv.join("\n")], {
+                    type: "text/csv;charset=utf-8;",
                 });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
-                link.download = "chart_export.svg";
+                link.download = "financial_data_export.csv";
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            };
-        }
+            }
 
-        function updateChart(selectedIndices) {
-            const ctx = document.getElementById("chart").getContext("2d");
-            const chartFrom = document.getElementById("chartFrom").value;
-            const chartTo = document.getElementById("chartTo").value;
-            const filteredData = fullData.filter(
-                (row) =>
-                    (!chartFrom || row.date >= chartFrom) &&
-                    (!chartTo || row.date <= chartTo)
-            );
-            const labels = filteredData.map((row) => row.date);
-            const datasets = selectedIndices.map((index) => ({
-                label: index,
-                data: filteredData.map((row) => {
-                    const raw = row[index];
-                    const num = parseFloat(raw);
-                    return raw === '-' || raw === '' || isNaN(num) ? null : num;
-                }),
-                spanGaps: true,
-                borderWidth: 2,
-                borderColor: colorMap[index],
-                backgroundColor: colorMap[index] + '20',
-                fill: false,
-                pointRadius: 0,
-                tension: 0.1
-            }));
-            
-            if (window.indexChart) window.indexChart.destroy();
-            
-            window.indexChart = new Chart(ctx, {
-                type: "line",
-                data: { labels, datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary'),
-                                padding: 15,
-                                usePointStyle: true,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
+            function exportChartToSVG() {
+                const canvas = document.getElementById("chart");
+                const image = new Image();
+                image.src = canvas.toDataURL("image/png");
+                image.onload = function () {
+                    const svg =
+                        `<svg xmlns='http://www.w3.org/2000/svg' width='${canvas.width}' height='${canvas.height}'>` +
+                        `<image href='${image.src}' width='${canvas.width}' height='${canvas.height}'/></svg>`;
+                    const blob = new Blob([svg], {
+                        type: "image/svg+xml;charset=utf-8",
+                    });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "chart_export.svg";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            }
+
+            function updateChart(selectedIndices) {
+                const ctx = document.getElementById("chart").getContext("2d");
+                const chartFrom = document.getElementById("chartFrom").value;
+                const chartTo = document.getElementById("chartTo").value;
+                const filteredData = fullData.filter(
+                    (row) =>
+                        (!chartFrom || row.date >= chartFrom) &&
+                        (!chartTo || row.date <= chartTo),
+                );
+                const labels = filteredData.map((row) => row.date);
+                const datasets = selectedIndices.map((index) => ({
+                    label: index,
+                    data: filteredData.map((row) => {
+                        const raw = row[index];
+                        const num = parseFloat(raw);
+                        return raw === "-" || raw === "" || isNaN(num)
+                            ? null
+                            : num;
+                    }),
+                    spanGaps: true,
+                    borderWidth: 2,
+                    borderColor: colorMap[index],
+                    backgroundColor: colorMap[index] + "20",
+                    fill: false,
+                    pointRadius: 0,
+                    tension: 0.1,
+                }));
+
+                if (window.indexChart) window.indexChart.destroy();
+
+                window.indexChart = new Chart(ctx, {
+                    type: "line",
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        interaction: {
+                            mode: "index",
                             intersect: false,
-                            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-card'),
-                            titleColor: getComputedStyle(document.documentElement).getPropertyValue('--text-primary'),
-                            bodyColor: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary'),
-                            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border-color'),
-                            borderWidth: 1,
-                            padding: 12,
-                            displayColors: true,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('en-US', { 
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 4 
-                                        }).format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { 
-                            grid: {
-                                color: getComputedStyle(document.documentElement).getPropertyValue('--border-color'),
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary'),
-                                maxTicksLimit: 10
-                            }
                         },
-                        y: {
-                            grid: {
-                                color: getComputedStyle(document.documentElement).getPropertyValue('--border-color'),
-                                drawBorder: false
+                        plugins: {
+                            legend: {
+                                position: "bottom",
+                                labels: {
+                                    color: getComputedStyle(
+                                        document.documentElement,
+                                    ).getPropertyValue("--text-primary"),
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12,
+                                    },
+                                },
                             },
-                            ticks: {
-                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary'),
-                                callback: function(value) {
-                                    return new Intl.NumberFormat('en-US', { 
-                                        notation: "compact",
-                                        compactDisplay: "short"
-                                    }).format(value);
-                                }
+                            tooltip: {
+                                mode: "index",
+                                intersect: false,
+                                backgroundColor: getComputedStyle(
+                                    document.documentElement,
+                                ).getPropertyValue("--bg-card"),
+                                titleColor: getComputedStyle(
+                                    document.documentElement,
+                                ).getPropertyValue("--text-primary"),
+                                bodyColor: getComputedStyle(
+                                    document.documentElement,
+                                ).getPropertyValue("--text-secondary"),
+                                borderColor: getComputedStyle(
+                                    document.documentElement,
+                                ).getPropertyValue("--border-color"),
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: true,
+                                callbacks: {
+                                    label: function (context) {
+                                        let label = context.dataset.label || "";
+                                        if (label) {
+                                            label += ": ";
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += new Intl.NumberFormat(
+                                                "en-US",
+                                                {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 4,
+                                                },
+                                            ).format(context.parsed.y);
+                                        }
+                                        return label;
+                                    },
+                                },
                             },
-                            beginAtZero: false,
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: getComputedStyle(
+                                        document.documentElement,
+                                    ).getPropertyValue("--border-color"),
+                                    drawBorder: false,
+                                },
+                                ticks: {
+                                    color: getComputedStyle(
+                                        document.documentElement,
+                                    ).getPropertyValue("--text-secondary"),
+                                    maxTicksLimit: 10,
+                                },
+                            },
+                            y: {
+                                grid: {
+                                    color: getComputedStyle(
+                                        document.documentElement,
+                                    ).getPropertyValue("--border-color"),
+                                    drawBorder: false,
+                                },
+                                ticks: {
+                                    color: getComputedStyle(
+                                        document.documentElement,
+                                    ).getPropertyValue("--text-secondary"),
+                                    callback: function (value) {
+                                        return new Intl.NumberFormat("en-US", {
+                                            notation: "compact",
+                                            compactDisplay: "short",
+                                        }).format(value);
+                                    },
+                                },
+                                beginAtZero: false,
+                            },
                         },
                     },
-                },
-            });
-        }
+                });
+            }
 
-        // Search functionality
-        document.getElementById("search").addEventListener("input", function () {
-            const query = this.value.toLowerCase();
-            const rows = document.querySelectorAll("#indexTable tr:not(:first-child)");
-            rows.forEach((row) => {
-                const text = row.textContent.toLowerCase();
-                row.classList.toggle("hidden", !text.includes(query));
-            });
-        });
+            // Search functionality
+            document
+                .getElementById("search")
+                .addEventListener("input", function () {
+                    const query = this.value.toLowerCase();
+                    const rows = document.querySelectorAll(
+                        "#indexTable tr:not(:first-child)",
+                    );
+                    rows.forEach((row) => {
+                        const text = row.textContent.toLowerCase();
+                        row.classList.toggle("hidden", !text.includes(query));
+                    });
+                });
 
-        // Chart date range listeners
-        document.getElementById("chartFrom").addEventListener("change", () => updateChart(getSelectedIndices()));
-        document.getElementById("chartTo").addEventListener("change", () => updateChart(getSelectedIndices()));
-    </script>
-</body>
+            // Chart date range listeners
+            document
+                .getElementById("chartFrom")
+                .addEventListener("change", () =>
+                    updateChart(getSelectedIndices()),
+                );
+            document
+                .getElementById("chartTo")
+                .addEventListener("change", () =>
+                    updateChart(getSelectedIndices()),
+                );
+        </script>
+    </body>
 </html>
