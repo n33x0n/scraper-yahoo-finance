@@ -151,6 +151,56 @@
             <div class="table-wrapper" id="tableWrapper">
                 <div class="table-header">
                     <h2 class="table-title">Market Data</h2>
+                    <!-- Table Category Filters -->
+                    <div class="category-filters">
+                        <button
+                            class="category-btn active"
+                            data-category="all"
+                            data-target="table"
+                        >
+                            All
+                        </button>
+                        <button
+                            class="category-btn"
+                            data-category="indices"
+                            data-target="table"
+                            title="Stock market indices from major global exchanges"
+                        >
+                            Stock Indices
+                        </button>
+                        <button
+                            class="category-btn"
+                            data-category="crypto"
+                            data-target="table"
+                            title="Cryptocurrency prices"
+                        >
+                            Crypto
+                        </button>
+                        <button
+                            class="category-btn"
+                            data-category="currencies"
+                            data-target="table"
+                            title="Exchange rates"
+                        >
+                            Currencies
+                        </button>
+                        <button
+                            class="category-btn"
+                            data-category="stocks"
+                            data-target="table"
+                            title="Company stocks"
+                        >
+                            Stocks
+                        </button>
+                        <button
+                            class="category-btn"
+                            data-category="commodities"
+                            data-target="table"
+                            title="Commodity prices including precious metals and energy"
+                        >
+                            Commodities
+                        </button>
+                    </div>
                 </div>
                 <table id="indexTable"></table>
             </div>
@@ -165,12 +215,14 @@
                             <button
                                 class="category-btn active"
                                 data-category="all"
+                                data-target="chart"
                             >
                                 All
                             </button>
                             <button
                                 class="category-btn"
                                 data-category="indices"
+                                data-target="chart"
                                 title="Stock market indices from major global exchanges"
                             >
                                 Stock Indices
@@ -178,6 +230,7 @@
                             <button
                                 class="category-btn"
                                 data-category="crypto"
+                                data-target="chart"
                                 title="Cryptocurrency prices"
                             >
                                 Crypto
@@ -185,6 +238,7 @@
                             <button
                                 class="category-btn"
                                 data-category="currencies"
+                                data-target="chart"
                                 title="Exchange rates"
                             >
                                 Currencies
@@ -192,6 +246,7 @@
                             <button
                                 class="category-btn"
                                 data-category="stocks"
+                                data-target="chart"
                                 title="Company stocks"
                             >
                                 Stocks
@@ -199,6 +254,7 @@
                             <button
                                 class="category-btn"
                                 data-category="commodities"
+                                data-target="chart"
                                 title="Commodity prices including precious metals and energy"
                             >
                                 Commodities
@@ -307,6 +363,7 @@
                 tableVisible = true,
                 darkTheme = true,
                 currentCategory = "all",
+                currentTableCategory = "all",
                 colorMap = {};
 
             // Initialize theme
@@ -422,12 +479,31 @@
             function initializeCategoryFilters() {
                 document.querySelectorAll(".category-btn").forEach((btn) => {
                     btn.addEventListener("click", (e) => {
+                        const target = e.target.dataset.target || "chart";
+                        const category = e.target.dataset.category;
+
+                        // Remove active class only from buttons of the same target
                         document
-                            .querySelectorAll(".category-btn")
-                            .forEach((b) => b.classList.remove("active"));
+                            .querySelectorAll(
+                                `.category-btn[data-target="${target}"], .category-btn:not([data-target])`,
+                            )
+                            .forEach((b) => {
+                                if (
+                                    b.dataset.target === target ||
+                                    (!b.dataset.target && target === "chart")
+                                ) {
+                                    b.classList.remove("active");
+                                }
+                            });
                         e.target.classList.add("active");
-                        currentCategory = e.target.dataset.category;
-                        filterByCategory(currentCategory);
+
+                        if (target === "table") {
+                            currentTableCategory = category;
+                            filterTableByCategory(category);
+                        } else {
+                            currentCategory = category;
+                            filterByCategory(category);
+                        }
                     });
                 });
             }
@@ -445,6 +521,33 @@
                     }
                 });
                 updateChart(getSelectedIndices());
+            }
+
+            function filterTableByCategory(category) {
+                const table = document.getElementById("indexTable");
+                const allRows = table.querySelectorAll("tr");
+
+                // Show/hide columns based on category
+                allRows.forEach((row) => {
+                    const cells = row.querySelectorAll("th, td");
+                    cells.forEach((cell, index) => {
+                        if (index === 0) {
+                            // Always show date column
+                            cell.style.display = "";
+                        } else if (category === "all") {
+                            // Show all columns
+                            cell.style.display = "";
+                        } else {
+                            // Show/hide based on category
+                            const header = headers[index];
+                            if (shouldShowInCategory(header, category)) {
+                                cell.style.display = "";
+                            } else {
+                                cell.style.display = "none";
+                            }
+                        }
+                    });
+                });
             }
 
             function shouldShowInCategory(name, category) {
