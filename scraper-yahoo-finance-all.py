@@ -78,12 +78,14 @@ TICKER_CONFIG = {
     "NG=F":     ("Natural Gas", 4),
     "GC=F":     ("Gold", 4),
     "SI=F":     ("Silver", 4),
+    "TA35.TA":  ("TA35", 2),
+    "ILS=X":    ("USD/ILS", 4),
 #    "WIG20.WA": ("WIG20", 2)
 }
 
 START_DATE = "2025-01-01"
-OUTPUT_FILE = "scraped-data.csv"
-REPORT_DIR = "reports"
+OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scraped-data.csv")
+REPORT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "reports")
 EMAIL_TO = "tomasz.lebioda@wyborcza.pl"
 
 # SMTP Configuration (optional - leave empty to use system mail command)
