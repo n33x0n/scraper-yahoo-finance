@@ -81,6 +81,10 @@ TICKER_CONFIG = {
     "TA35.TA":  ("TA35", 2),
     "ILS=X":    ("USD/ILS", 4),
 #    "WIG20.WA": ("WIG20", 2)
+    "NVDA":     ("NVIDIA", 2),
+    "7CD.SG":   ("CD Projekt", 2),
+    "^IXIC":    ("NASDAQ Composite", 2),
+    "^DJI":     ("Dow Jones Industrial Average", 2),
 }
 
 START_DATE = "2025-01-01"
